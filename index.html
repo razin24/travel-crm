@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Travelora | Travel Agency CRM</title>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<!-- Updated, stable CDN for Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root{
     --green-deep:#173226;
@@ -745,14 +746,23 @@
       const data = await apiGet("dashboard");
       if (data.status !== "success") { showToast("ডেটা লোড করা যায়নি: " + (data.message || ""), 'error'); return; }
       renderStats(data.stats);
-      dashboardChartData = data.chart;
-      renderRevenueChartFiltered();
-      renderPerformanceChart(data.bookingPerformance);
-      renderRecentBookings(data.recentBookings);
-      renderUpcomingTours(data.upcomingTours);
-      renderActivity(data.recentActivity);
-      renderNotifDropdown(data.recentActivity);
-    } catch (e) { showToast("ড্যাশবোর্ড লোড এরর: " + e.message, 'error'); }
+      
+      // Data checking 
+      dashboardChartData = data.chart || { labels: [], revenue: [], bookings: [] };
+      
+      // ✅ TRY-CATCH FOR CHARTS: চার্ট ফেইল হলেও বাকি টেবিল লোড হবে!
+      try { renderRevenueChartFiltered(); } catch(err) { console.error("Chart 1 Error:", err); }
+      try { renderPerformanceChart(data.bookingPerformance || {confirmed:0, pending:0, cancelled:0}); } catch(err) { console.error("Chart 2 Error:", err); }
+      
+      // Rendering Tables
+      renderRecentBookings(data.recentBookings || []);
+      renderUpcomingTours(data.upcomingTours || []);
+      renderActivity(data.recentActivity || []);
+      renderNotifDropdown(data.recentActivity || []);
+
+    } catch (e) { 
+      showToast("ড্যাশবোর্ড লোড এরর: " + e.message, 'error'); 
+    }
   }
 
   document.addEventListener('click', (e) => {
@@ -761,7 +771,7 @@
       document.querySelectorAll('#range-tabs .tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentRange = tab.dataset.range;
-      renderRevenueChartFiltered();
+      try { renderRevenueChartFiltered(); } catch(err){}
     }
   });
 
@@ -773,7 +783,11 @@
     if (currentRange === '7' || currentRange === '30') n = Math.min(1, labels.length);
     if (currentRange === '3m') n = Math.min(3, labels.length);
     if (currentRange === '12m') n = labels.length;
-    const sliceFrom = labels.length - n;
+    
+    // safe slice indexing
+    let sliceFrom = labels.length - n;
+    if(sliceFrom < 0) sliceFrom = 0;
+    
     renderRevenueChart({ labels: labels.slice(sliceFrom), revenue: rev.slice(sliceFrom), bookings: bk.slice(sliceFrom) });
   }
 
@@ -789,6 +803,7 @@
 
   function renderRevenueChart(chart) {
     const ctx = document.getElementById('revenueChart');
+    if (!ctx) return;
     if (revenueChart) revenueChart.destroy();
     revenueChart = new Chart(ctx, {
       type: 'line',
@@ -805,6 +820,7 @@
 
   function renderPerformanceChart(perf) {
     const ctx = document.getElementById('performanceChart');
+    if (!ctx) return;
     if (performanceChart) performanceChart.destroy();
     performanceChart = new Chart(ctx, {
       type: 'bar',
@@ -888,7 +904,6 @@
   function fmtDateDisplay(v) { if (!v) return '-'; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
 
 async function openBookingModal(b) {
-    // ট্যুর লিস্ট যদি আগে থেকে লোড করা না থাকে, তাহলে সার্ভার থেকে আনবে (apiGet দিয়ে)
     if (!allTours || allTours.length === 0) {
       const tourRes = await apiGet('tours');
       if (tourRes.status === 'success' && tourRes.data) {
@@ -896,7 +911,6 @@ async function openBookingModal(b) {
       }
     }
 
-    // ট্যুর অপশন তৈরি করা
     const tourOptions = allTours.map(t => 
         `<option value="${t.Name}" data-time="${t.DepartureTime || ''}" data-boarding="${t.BoardingPoint || ''}" ${b && b.TourName === t.Name ? 'selected' : ''}>${t.Name}</option>`
     ).join('');
@@ -938,8 +952,6 @@ async function openBookingModal(b) {
     if (!b) setTimeout(updateModalTourInfo, 100);
   }
 
-  // আপডেটেড ফাংশন যা ডেট এবং বোর্ডিং পয়েন্ট দুটোই সেট করবে
-// ট্যুর সিলেক্ট করলে অটোমেটিক সময় ও স্থান চেঞ্জ করার ফাংশন
   window.updateModalTourInfo = function() {
     const sel = document.getElementById('m-tour');
     if(sel && sel.options[sel.selectedIndex]) {
@@ -1037,7 +1049,7 @@ function openTourModal(t) {
       document.getElementById('fin-expense').innerText = fmtMoney(res.summary.expense);
       document.getElementById('fin-net').innerText = fmtMoney(res.summary.net);
       renderFinanceTable();
-      renderFinanceChart(res.summary);
+      try{ renderFinanceChart(res.summary); }catch(e){}
     } catch (e) { showToast('হিসাব লোড এরর: ' + e.message, 'error'); }
   }
 
@@ -1058,6 +1070,7 @@ function openTourModal(t) {
 
   function renderFinanceChart(summary) {
     const ctx = document.getElementById('financeChart');
+    if(!ctx) return;
     if (financeChart) financeChart.destroy();
     financeChart = new Chart(ctx, {
       type: 'doughnut',
