@@ -10,6 +10,7 @@
   :root{
     --green-deep:#173226;
     --green-mid:#1f4436;
+    --green-soft:#2c5b45;
     --cream:#f4f6f5;
     --card:#ffffff;
     --text:#243430;
@@ -22,11 +23,16 @@
     --warn-bg:#fdf1dc;
     --bad:#d84c4c;
     --bad-bg:#fdeaea;
+    --info:#2e6f9e;
+    --info-bg:#e8f2fb;
   }
   *{box-sizing:border-box;}
   body{margin:0;font-family:'Hind Siliguri','Poppins',sans-serif;background:var(--cream);color:var(--text);}
   h1,h2,h3,.brand{font-family:'Poppins','Hind Siliguri',sans-serif;}
   .hidden{display:none !important;}
+  button,input,select,textarea{font-family:inherit;}
+  ::-webkit-scrollbar{height:8px;width:8px;}
+  ::-webkit-scrollbar-thumb{background:#d3dbd7;border-radius:8px;}
 
   /* ---------- LOGIN ---------- */
   #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
@@ -44,63 +50,107 @@
   .login-card button:hover{filter:brightness(1.05);}
   .login-card button:disabled{opacity:.6;cursor:default;}
   #login-error{color:var(--bad);font-size:13px;margin-top:10px;display:none;}
+  .login-hint{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.5;}
 
   /* ---------- APP SHELL ---------- */
   #app-screen{display:none;}
   .shell{display:flex;min-height:100vh;}
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;}
+  .overlay.show{display:block;}
+
   .sidebar{width:250px;background:var(--green-deep);color:#eef3f0;flex-shrink:0;
-    padding:22px 16px;display:flex;flex-direction:column;}
+    padding:22px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:50;}
   .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 8px 22px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:18px;}
   .sidebar .brand .icon{width:34px;height:34px;border-radius:9px;background:var(--orange);
-    display:flex;align-items:center;justify-content:center;font-size:16px;}
+    display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
   .sidebar .brand .txt b{display:block;font-size:16px;letter-spacing:1px;}
   .sidebar .brand .txt small{color:#9fb3ab;font-size:10.5px;letter-spacing:.5px;}
   .nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:9px;
-    color:#c9d8d1;font-size:14.5px;font-weight:500;cursor:pointer;margin-bottom:2px;}
+    color:#c9d8d1;font-size:14.5px;font-weight:500;cursor:pointer;margin-bottom:2px;user-select:none;}
+  .nav-item svg{flex-shrink:0;width:18px;height:18px;}
   .nav-item:hover{background:rgba(255,255,255,.06);}
   .nav-item.active{background:var(--orange);color:#fff;}
   .sidebar .spacer{flex:1;}
   .sidebar .who{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;background:rgba(255,255,255,.05);}
   .sidebar .who .av{width:34px;height:34px;border-radius:50%;background:var(--orange);
-    display:flex;align-items:center;justify-content:center;font-weight:700;}
+    display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
   .sidebar .who small{color:#9fb3ab;display:block;font-size:11px;}
-  .sidebar .who .logout{margin-left:auto;cursor:pointer;color:#e08a8a;font-size:12px;}
+  .sidebar .who .logout{margin-left:auto;cursor:pointer;color:#e08a8a;font-size:12px;white-space:nowrap;}
 
-  .main{flex:1;padding:26px 30px;min-width:0;}
-  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
-  .topbar h1{font-size:24px;margin:0;}
-  .topbar p{margin:2px 0 0;color:var(--muted);font-size:13.5px;}
-  .refresh-btn{border:1px solid var(--line);background:#fff;padding:9px 16px;border-radius:8px;
-    font-size:13px;cursor:pointer;color:var(--green-deep);font-weight:600;}
-  .refresh-btn:hover{background:#f1f3f2;}
+  .main{flex:1;padding:22px 28px 40px;min-width:0;}
 
+  /* ---------- TOPBAR ---------- */
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+  .topbar-left{display:flex;align-items:center;gap:12px;min-width:0;}
+  .hamburger{display:none;background:#fff;border:1px solid var(--line);border-radius:8px;width:38px;height:38px;
+    align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .topbar h1{font-size:23px;margin:0;}
+  .topbar p{margin:2px 0 0;color:var(--muted);font-size:13px;}
+  .topbar-right{display:flex;align-items:center;gap:10px;}
+  .tb-search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);
+    border-radius:9px;padding:8px 12px;width:190px;}
+  .tb-search input{border:none;outline:none;background:none;font-size:13.5px;width:100%;color:var(--text);}
+  .tb-search svg{color:var(--muted);flex-shrink:0;}
+  .tb-daterange{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);
+    border-radius:9px;padding:9px 13px;font-size:13px;color:var(--green-deep);font-weight:600;cursor:pointer;white-space:nowrap;}
+  .tb-icon-btn{position:relative;width:38px;height:38px;border-radius:9px;background:#fff;border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--green-deep);flex-shrink:0;}
+  .tb-icon-btn .dot{position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--bad);}
+  .tb-profile{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 8px 4px 4px;border-radius:9px;position:relative;}
+  .tb-profile:hover{background:#eef1ef;}
+  .tb-profile .av{width:34px;height:34px;border-radius:50%;background:var(--green-mid);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
+  .tb-profile .name{font-size:13.5px;font-weight:600;}
+  .tb-profile .name small{display:block;font-weight:400;color:var(--muted);font-size:11px;}
+  .dropdown-panel{position:absolute;top:110%;right:0;background:#fff;border:1px solid var(--line);border-radius:10px;
+    box-shadow:0 10px 30px rgba(20,40,32,.15);min-width:200px;padding:6px;display:none;z-index:60;}
+  .dropdown-panel.show{display:block;}
+  .dropdown-panel .item{padding:9px 10px;border-radius:7px;font-size:13.5px;cursor:pointer;color:var(--text);}
+  .dropdown-panel .item:hover{background:var(--cream);}
+  .dropdown-panel .item.danger{color:var(--bad);}
+  .notif-panel{width:280px;}
+  .notif-panel .head{font-size:12.5px;font-weight:700;color:var(--muted);padding:6px 8px;text-transform:uppercase;letter-spacing:.4px;}
+  .notif-panel .row{padding:9px 8px;border-radius:7px;}
+  .notif-panel .row b{font-size:13px;display:block;}
+  .notif-panel .row span{font-size:11.5px;color:var(--muted);}
+
+  /* ---------- COMMON PAGE ELEMENTS ---------- */
+  .page{display:none;}
+  .page.active{display:block;}
   .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:18px;}
   .stat-card{background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(20,40,32,.05);}
   .stat-card .top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13.5px;font-weight:500;}
-  .stat-card .icon{width:32px;height:32px;border-radius:9px;background:#eef6f1;display:flex;align-items:center;justify-content:center;}
+  .stat-card .icon{width:32px;height:32px;border-radius:9px;background:#eef6f1;display:flex;align-items:center;justify-content:center;color:var(--green-mid);}
   .stat-card .val{font-size:26px;font-weight:700;margin-top:8px;}
   .stat-card .sub{font-size:12.5px;color:var(--ok);margin-top:4px;}
   .stat-card .sub.warn{color:var(--warn);}
 
   .grid-2{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px;}
   .panel{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(20,40,32,.05);}
-  .panel h3{margin:0 0 14px;font-size:15.5px;}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  .panel h3{margin:0;font-size:15.5px;}
   .panel .empty{color:var(--muted);font-size:13px;text-align:center;padding:30px 0;}
+  .tabs{display:flex;gap:4px;background:var(--cream);padding:3px;border-radius:8px;}
+  .tabs .tab{padding:6px 12px;font-size:12.5px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:600;}
+  .tabs .tab.active{background:#fff;color:var(--green-deep);box-shadow:0 1px 4px rgba(0,0,0,.08);}
 
   .bottom-grid{display:grid;grid-template-columns:2fr 1fr;gap:18px;}
 
   table{width:100%;border-collapse:collapse;font-size:13.5px;}
-  th{text-align:left;color:var(--muted);font-weight:600;padding:9px 8px;border-bottom:1px solid var(--line);font-size:12.5px;text-transform:uppercase;letter-spacing:.3px;}
-  td{padding:11px 8px;border-bottom:1px solid var(--line);}
-  .badge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
-  .badge.Confirmed{background:var(--ok-bg);color:var(--ok);}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:9px 8px;border-bottom:1px solid var(--line);font-size:12px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;}
+  td{padding:11px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  tr:last-child td{border-bottom:none;}
+  .badge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;}
+  .badge.Confirmed,.badge.Active,.badge.Income{background:var(--ok-bg);color:var(--ok);}
   .badge.Pending{background:var(--warn-bg);color:var(--warn);}
-  .badge.Cancelled{background:var(--bad-bg);color:var(--bad);}
+  .badge.Cancelled,.badge.Inactive,.badge.Expense{background:var(--bad-bg);color:var(--bad);}
+  .badge.Admin{background:var(--info-bg);color:var(--info);}
+  .badge.Moderator{background:var(--warn-bg);color:var(--warn);}
 
   .tour-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
   .tour-item:last-child{border-bottom:none;}
   .tour-item .dot{width:38px;height:38px;border-radius:9px;background:#eef6f1;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;color:var(--green-mid);font-weight:700;}
+    display:flex;align-items:center;justify-content:center;color:var(--green-mid);}
   .tour-item .name{font-weight:600;font-size:13.5px;}
   .tour-item .meta{color:var(--muted);font-size:12px;margin-top:2px;}
   .progress-bar{height:4px;background:var(--line);border-radius:4px;margin-top:6px;overflow:hidden;}
@@ -113,12 +163,89 @@
   .activity-item .details{color:var(--muted);font-size:12px;margin-top:1px;}
   .activity-item .time{color:var(--muted);font-size:11px;white-space:nowrap;}
 
+  /* ---------- BUTTONS ---------- */
+  .btn{border:none;border-radius:8px;padding:10px 16px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn-primary{background:var(--orange);color:#fff;}
+  .btn-primary:hover{filter:brightness(1.06);}
+  .btn-outline{background:#fff;border:1px solid var(--line);color:var(--green-deep);}
+  .btn-outline:hover{background:#f1f3f2;}
+  .btn-sm{padding:6px 10px;font-size:12px;border-radius:7px;}
+  .btn-icon{width:30px;height:30px;padding:0;justify-content:center;border-radius:7px;background:#fff;border:1px solid var(--line);color:var(--green-deep);}
+  .btn-icon:hover{background:#f1f3f2;}
+  .btn-icon.danger{color:var(--bad);}
+  .refresh-btn{border:1px solid var(--line);background:#fff;padding:9px 16px;border-radius:8px;
+    font-size:13px;cursor:pointer;color:var(--green-deep);font-weight:600;}
+  .refresh-btn:hover{background:#f1f3f2;}
+
+  /* ---------- TOOLBAR / FILTER ROW ---------- */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:center;justify-content:space-between;}
+  .toolbar .filters{display:flex;flex-wrap:wrap;gap:10px;flex:1;}
+  .field-input,.field-select{border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:13.5px;background:#fff;color:var(--text);}
+  .field-search{position:relative;}
+  .field-search input{padding-left:34px;}
+  .field-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);}
+
+  /* ---------- CARDS GRID (Tours) ---------- */
+  .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+  .tour-card{background:var(--card);border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(20,40,32,.05);}
+  .tour-card .thead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .tour-card .tname{font-weight:700;font-size:15.5px;}
+  .tour-card .tdest{color:var(--muted);font-size:12.5px;margin-top:2px;}
+  .tour-card .tprice{font-size:20px;font-weight:700;color:var(--green-deep);margin-top:12px;}
+  .tour-card .tmeta{display:flex;gap:14px;margin-top:10px;font-size:12.5px;color:var(--muted);}
+  .tour-card .tactions{display:flex;gap:8px;margin-top:14px;}
+  .tour-card .tdesc{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5;}
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,30,24,.55);z-index:100;
+    align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;width:100%;max-width:460px;max-height:88vh;overflow-y:auto;
+    box-shadow:0 30px 70px rgba(0,0,0,.3);}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line);}
+  .modal-head h3{margin:0;font-size:16.5px;}
+  .modal-close{cursor:pointer;color:var(--muted);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:7px;}
+  .modal-close:hover{background:var(--cream);}
+  .modal-body{padding:18px 20px;}
+  .modal-body label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:12px 0 5px;}
+  .modal-body label:first-child{margin-top:0;}
+  .modal-body input,.modal-body select,.modal-body textarea{width:100%;padding:11px 12px;border:1px solid var(--line);
+    border-radius:8px;font-size:14px;background:#f9faf9;color:var(--text);}
+  .modal-body input:focus,.modal-body select:focus,.modal-body textarea:focus{outline:2px solid var(--orange);background:#fff;}
+  .modal-body textarea{resize:vertical;min-height:70px;}
+  .modal-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 20px;border-top:1px solid var(--line);}
+  .modal-msg{font-size:13px;color:var(--bad);margin-top:8px;display:none;}
+
+  /* ---------- TOAST ---------- */
+  #toast-wrap{position:fixed;bottom:20px;right:20px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+  .toast{background:var(--green-deep);color:#fff;padding:12px 18px;border-radius:9px;font-size:13.5px;
+    box-shadow:0 10px 25px rgba(0,0,0,.2);min-width:220px;animation:toastIn .2s ease;}
+  .toast.error{background:var(--bad);}
+  .toast.success{background:var(--ok);}
+  @keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- FINANCE SUMMARY ---------- */
+  .finance-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:18px;}
+
+  /* ---------- PERMISSIONS TABLE ---------- */
+  .perm-table td:first-child{font-weight:600;}
+
+  .access-denied{text-align:center;padding:60px 20px;color:var(--muted);}
+  .access-denied svg{color:var(--bad);margin-bottom:12px;}
+
   @media (max-width: 900px){
-    .shell{flex-direction:column;}
-    .sidebar{width:100%;flex-direction:row;overflow-x:auto;align-items:center;padding:12px;}
-    .sidebar .brand{border:none;margin:0 10px 0 0;padding:0;}
-    .sidebar .spacer,.sidebar .who{display:none;}
+    .hamburger{display:flex;}
+    .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);transition:transform .2s ease;width:250px;}
+    .sidebar.open{transform:translateX(0);}
+    .tb-search,.tb-daterange{display:none;}
     .grid-2,.bottom-grid{grid-template-columns:1fr;}
+    .main{padding:16px 14px 30px;}
+    .modal-row2{grid-template-columns:1fr;}
+  }
+  @media (max-width: 480px){
+    .stat-card .val{font-size:22px;}
+    .tb-profile .name{display:none;}
   }
 </style>
 </head>
@@ -132,29 +259,54 @@
       <input type="text" id="user" placeholder="Username" autocomplete="off">
       <input type="password" id="pass" placeholder="Password">
       <button id="login-btn" onclick="doLogin()">Login</button>
-      <p id="login-error">ভুল ইউজারনেম বা পাসওয়ার্ড!</p>
+      <p id="login-error"></p>
+      <div class="login-hint">প্রথমবার? Username: <b>admin</b> · Password: <b>admin123</b></div>
     </div>
   </div>
 
   <!-- ============ APP ============ -->
   <div id="app-screen">
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
     <div class="shell">
-      <div class="sidebar">
+      <div class="sidebar" id="sidebar">
         <div class="brand">
           <div class="icon">✈️</div>
           <div class="txt"><b>TRAVELORA</b><small>Travel Agency CRM</small></div>
         </div>
-        <div class="nav-item active">Dashboard</div>
-        <div class="nav-item">Bookings</div>
-        <div class="nav-item">Manage Tours</div>
-        <div class="nav-item">Accounts / Finance</div>
-        <div class="nav-item">Users &amp; Roles</div>
-        <div class="nav-item">Activity Logs</div>
-        <div class="nav-item">Settings</div>
+
+        <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-item" data-page="bookings" onclick="showPage('bookings')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          <span>Bookings</span>
+        </div>
+        <div class="nav-item" data-page="tours" onclick="showPage('tours')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2 6-6 2 2-6 6-2z"/></svg>
+          <span>Manage Tours</span>
+        </div>
+        <div class="nav-item" data-page="finance" onclick="showPage('finance')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/></svg>
+          <span>Accounts / Finance</span>
+        </div>
+        <div class="nav-item" data-page="users" id="nav-users" onclick="showPage('users')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><circle cx="17" cy="8" r="2.6"/><path d="M16 14.2c2.6.4 4.5 2.5 5 5.8"/></svg>
+          <span>Users &amp; Roles</span>
+        </div>
+        <div class="nav-item" data-page="logs" onclick="showPage('logs')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <span>Activity Logs</span>
+        </div>
+        <div class="nav-item" data-page="settings" onclick="showPage('settings')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.7 1.7 0 000-2l1-1.7-2-3.4-1.9.6a1.7 1.7 0 01-1.7-1L14.3 3h-4l-.5 1.9a1.7 1.7 0 01-1.7 1l-1.9-.6-2 3.4 1 1.7a1.7 1.7 0 000 2l-1 1.7 2 3.4 1.9-.6a1.7 1.7 0 011.7 1l.5 1.9h4l.5-1.9a1.7 1.7 0 011.7-1l1.9.6 2-3.4-1-1.7z"/></svg>
+          <span>Settings</span>
+        </div>
+
         <div class="spacer"></div>
         <div class="who">
           <div class="av" id="who-av">A</div>
-          <div>
+          <div style="min-width:0;">
             <div id="who-name" style="font-weight:600;font-size:13.5px;">Admin</div>
             <small id="who-role">Admin</small>
           </div>
@@ -164,88 +316,314 @@
 
       <div class="main">
         <div class="topbar">
-          <div>
-            <h1>Dashboard</h1>
-            <p id="welcome-msg">Welcome back, Admin</p>
+          <div class="topbar-left">
+            <div class="hamburger" onclick="openSidebar()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+            </div>
+            <div>
+              <h1 id="page-title">Dashboard</h1>
+              <p id="page-subtitle">Welcome back, Admin</p>
+            </div>
           </div>
-          <button class="refresh-btn" onclick="loadDashboard()">⟳ Refresh</button>
+          <div class="topbar-right">
+            <div class="tb-search">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+              <input id="tb-search-input" placeholder="Search bookings..." onkeydown="if(event.key==='Enter')globalSearch()">
+            </div>
+            <div class="tb-daterange" onclick="cycleDateRange()"><span>📅</span><span id="tb-daterange-label">This Year</span></div>
+
+            <div style="position:relative;">
+              <div class="tb-icon-btn" onclick="toggleNotif(event)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M9.5 20a2.5 2.5 0 005 0"/></svg>
+                <span class="dot" id="notif-dot"></span>
+              </div>
+              <div class="dropdown-panel notif-panel" id="notif-panel">
+                <div class="head">Recent Activity</div>
+                <div id="notif-list"></div>
+              </div>
+            </div>
+
+            <div style="position:relative;">
+              <div class="tb-profile" onclick="toggleProfileMenu(event)">
+                <div class="av" id="tb-av">A</div>
+                <div class="name" id="tb-name">Admin<small id="tb-role">Admin</small></div>
+              </div>
+              <div class="dropdown-panel" id="profile-panel">
+                <div class="item" onclick="showPage('settings');closeAllDropdowns()">⚙️ Settings</div>
+                <div class="item danger" onclick="logout()">🚪 Logout</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="stats-grid" id="stats-grid">
-          <div class="stat-card"><div class="top">Total Revenue<div class="icon">৳</div></div><div class="val">–</div></div>
-          <div class="stat-card"><div class="top">Total Bookings<div class="icon">📅</div></div><div class="val">–</div></div>
-          <div class="stat-card"><div class="top">Active Tours<div class="icon">🧭</div></div><div class="val">–</div></div>
-          <div class="stat-card"><div class="top">Pending Bookings<div class="icon">⏳</div></div><div class="val">–</div></div>
+        <!-- ============ PAGE: DASHBOARD ============ -->
+        <div class="page active" id="page-dashboard">
+          <div class="stats-grid" id="stats-grid">
+            <div class="stat-card"><div class="top">Total Revenue<div class="icon">৳</div></div><div class="val">–</div></div>
+            <div class="stat-card"><div class="top">Total Bookings<div class="icon">📅</div></div><div class="val">–</div></div>
+            <div class="stat-card"><div class="top">Active Tours<div class="icon">🧭</div></div><div class="val">–</div></div>
+            <div class="stat-card"><div class="top">Pending Bookings<div class="icon">⏳</div></div><div class="val">–</div></div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Sales &amp; Revenue Analytics</h3>
+                <div class="tabs" id="range-tabs">
+                  <div class="tab" data-range="7">7 Days</div>
+                  <div class="tab" data-range="30">30 Days</div>
+                  <div class="tab active" data-range="3m">3 Months</div>
+                  <div class="tab" data-range="12m">12 Months</div>
+                </div>
+              </div>
+              <canvas id="revenueChart" height="110"></canvas>
+            </div>
+            <div class="panel">
+              <h3>Booking Performance</h3>
+              <canvas id="performanceChart" height="140"></canvas>
+            </div>
+          </div>
+
+          <div class="bottom-grid">
+            <div class="panel">
+              <h3>Recent Bookings</h3>
+              <div style="overflow-x:auto;">
+                <table>
+                  <thead><tr><th>Booking ID</th><th>Customer</th><th>Tour</th><th>Travel Date</th><th>Travelers</th><th>Amount</th><th>Status</th></tr></thead>
+                  <tbody id="recent-bookings-body"></tbody>
+                </table>
+              </div>
+              <div id="recent-bookings-empty" class="empty hidden">এখনো কোনো বুকিং নেই</div>
+            </div>
+
+            <div class="panel">
+              <h3>Upcoming Tours</h3>
+              <div id="upcoming-tours-list"></div>
+              <div id="upcoming-empty" class="empty hidden">কোনো আসন্ন ট্যুর নেই</div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top:18px;">
+            <h3>Recent Activity</h3>
+            <div id="activity-list"></div>
+            <div id="activity-empty" class="empty hidden">কোনো অ্যাক্টিভিটি নেই</div>
+          </div>
         </div>
 
-        <div class="grid-2">
-          <div class="panel">
-            <h3>Sales &amp; Revenue Analytics</h3>
-            <canvas id="revenueChart" height="110"></canvas>
+        <!-- ============ PAGE: BOOKINGS ============ -->
+        <div class="page" id="page-bookings">
+          <div class="toolbar">
+            <div class="filters">
+              <div class="field-input field-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+                <input class="field-input" id="bk-search" placeholder="কাস্টমার বা ট্যুর দিয়ে খুঁজুন" oninput="renderBookingsTable()" style="padding-left:30px;">
+              </div>
+              <select class="field-select" id="bk-status-filter" onchange="renderBookingsTable()">
+                <option value="">সব Status</option>
+                <option value="Confirmed">Confirmed</option>
+                <option value="Pending">Pending</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="openBookingModal()">+ Add Booking</button>
           </div>
           <div class="panel">
-            <h3>Booking Performance</h3>
-            <canvas id="performanceChart" height="140"></canvas>
-          </div>
-        </div>
-
-        <div class="bottom-grid">
-          <div class="panel">
-            <h3>Recent Bookings</h3>
             <div style="overflow-x:auto;">
               <table>
-                <thead><tr><th>Booking ID</th><th>Customer</th><th>Tour</th><th>Travel Date</th><th>Travelers</th><th>Amount</th><th>Status</th></tr></thead>
-                <tbody id="recent-bookings-body"></tbody>
+                <thead><tr><th>Booking ID</th><th>Customer</th><th>Phone</th><th>Tour</th><th>Travel Date</th><th>Travelers</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="bookings-body"></tbody>
               </table>
             </div>
-            <div id="recent-bookings-empty" class="empty hidden">এখনো কোনো বুকিং নেই</div>
+            <div id="bookings-empty" class="empty hidden">কোনো বুকিং পাওয়া যায়নি</div>
           </div>
+        </div>
 
+        <!-- ============ PAGE: MANAGE TOURS ============ -->
+        <div class="page" id="page-tours">
+          <div class="toolbar">
+            <div class="filters">
+              <div class="field-input field-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+                <input class="field-input" id="tour-search" placeholder="ট্যুরের নাম বা গন্তব্য খুঁজুন" oninput="renderToursGrid()" style="padding-left:30px;">
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="openTourModal()">+ Add Tour</button>
+          </div>
+          <div class="cards-grid" id="tours-grid"></div>
+          <div id="tours-empty" class="empty hidden" style="text-align:center;color:var(--muted);padding:40px 0;">কোনো ট্যুর নেই</div>
+        </div>
+
+        <!-- ============ PAGE: ACCOUNTS / FINANCE ============ -->
+        <div class="page" id="page-finance">
+          <div class="finance-summary">
+            <div class="stat-card"><div class="top">Total Income<div class="icon">৳</div></div><div class="val" id="fin-income">–</div></div>
+            <div class="stat-card"><div class="top">Total Expense<div class="icon">📉</div></div><div class="val" id="fin-expense">–</div></div>
+            <div class="stat-card"><div class="top">Net Profit<div class="icon">📈</div></div><div class="val" id="fin-net">–</div></div>
+          </div>
+          <div class="grid-2" style="grid-template-columns:2fr 1fr;">
+            <div class="panel">
+              <div class="panel-head">
+                <h3>All Transactions</h3>
+                <button class="btn btn-primary btn-sm" id="fin-add-btn" onclick="openFinanceModal()">+ Add Entry</button>
+              </div>
+              <div style="overflow-x:auto;">
+                <table>
+                  <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Amount</th><th>Booking</th><th>Added By</th><th>Note</th><th></th></tr></thead>
+                  <tbody id="finance-body"></tbody>
+                </table>
+              </div>
+              <div id="finance-empty" class="empty hidden">কোনো এন্ট্রি নেই</div>
+            </div>
+            <div class="panel">
+              <h3>Income vs Expense</h3>
+              <canvas id="financeChart" height="220"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ PAGE: USERS & ROLES ============ -->
+        <div class="page" id="page-users">
+          <div id="users-admin-only">
+            <div class="toolbar">
+              <div></div>
+              <button class="btn btn-primary" onclick="openUserModal()">+ Add User</button>
+            </div>
+            <div class="panel" style="margin-bottom:18px;">
+              <h3>Staff Accounts</h3>
+              <div style="overflow-x:auto;">
+                <table>
+                  <thead><tr><th>Name</th><th>Email</th><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+                  <tbody id="users-body"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Roles &amp; Permissions</h3>
+              <div style="overflow-x:auto;">
+                <table class="perm-table">
+                  <thead><tr><th>Module</th><th>Admin</th><th>Moderator</th></tr></thead>
+                  <tbody id="permissions-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div id="users-denied" class="access-denied hidden">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            <p>এই পেজ দেখার অনুমতি শুধুমাত্র Admin এর আছে।</p>
+          </div>
+        </div>
+
+        <!-- ============ PAGE: ACTIVITY LOGS ============ -->
+        <div class="page" id="page-logs">
+          <div class="toolbar">
+            <div class="filters">
+              <select class="field-select" id="log-type-filter" onchange="renderLogsTable()">
+                <option value="">সব ধরনের অ্যাক্টিভিটি</option>
+                <option value="booking">Bookings</option>
+                <option value="tour">Tours</option>
+                <option value="finance">Finance</option>
+                <option value="user">Users</option>
+                <option value="settings">Settings</option>
+              </select>
+            </div>
+            <button class="refresh-btn" onclick="loadLogs()">⟳ Refresh</button>
+          </div>
           <div class="panel">
-            <h3>Upcoming Tours</h3>
-            <div id="upcoming-tours-list"></div>
-            <div id="upcoming-empty" class="empty hidden">কোনো আসন্ন ট্যুর নেই</div>
+            <div id="logs-list"></div>
+            <div id="logs-empty" class="empty hidden">কোনো অ্যাক্টিভিটি নেই</div>
           </div>
         </div>
 
-        <div class="panel" style="margin-top:18px;">
-          <h3>Recent Activity</h3>
-          <div id="activity-list"></div>
-          <div id="activity-empty" class="empty hidden">কোনো অ্যাক্টিভিটি নেই</div>
+        <!-- ============ PAGE: SETTINGS ============ -->
+        <div class="page" id="page-settings">
+          <div id="settings-agency-card" class="panel" style="margin-bottom:18px;max-width:520px;">
+            <h3>Agency Information</h3>
+            <label style="display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:12px 0 5px;">Agency Name</label>
+            <input class="field-input" style="width:100%;" id="set-agencyName">
+            <label style="display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:12px 0 5px;">Currency Symbol</label>
+            <input class="field-input" style="width:100%;" id="set-currencySymbol">
+            <label style="display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:12px 0 5px;">Support Email</label>
+            <input class="field-input" style="width:100%;" id="set-supportEmail">
+            <label style="display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:12px 0 5px;">Support Phone</label>
+            <input class="field-input" style="width:100%;" id="set-supportPhone">
+            <button class="btn btn-primary" style="margin-top:16px;" onclick="saveAgencySettings()">Save Changes</button>
+            <div class="modal-msg" id="settings-msg"></div>
+          </div>
+
+          <div class="panel" style="max-width:520px;">
+            <h3>Change Password</h3>
+            <label style="display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:12px 0 5px;">Current Password</label>
+            <input class="field-input" style="width:100%;" type="password" id="pw-old">
+            <label style="display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:12px 0 5px;">New Password</label>
+            <input class="field-input" style="width:100%;" type="password" id="pw-new">
+            <label style="display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:12px 0 5px;">Confirm New Password</label>
+            <input class="field-input" style="width:100%;" type="password" id="pw-confirm">
+            <button class="btn btn-primary" style="margin-top:16px;" onclick="savePassword()">Update Password</button>
+            <div class="modal-msg" id="password-msg"></div>
+          </div>
         </div>
+
       </div>
     </div>
   </div>
+
+  <!-- ============ MODAL (shared) ============ -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="modal-title">Title</h3>
+        <div class="modal-close" onclick="closeModal()">✕</div>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-foot">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" id="modal-save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-wrap"></div>
 
 <script>
   // ============================================================
   //  ⚠️ এখানে আপনার Apps Script Web App URL বসান (.../exec)
   // ============================================================
-  const BASE_URL = "https://script.google.com/macros/s/AKfycbyhe4PJZ5Rqh0Ip1jbKz7F2IqyrlwT73wWvtUDPza4dtz1vAM-wd1FLvKcZQHqO5zSL/exec";
+  const BASE_URL = "https://script.google.com/macros/s/AKfycbxX8zD5Z9mZ0aKViP2tsu4OgxAE7xav3fS_DNDtxljTUXVFsiVM3gbtgC7jRCCBP0Bb/exec";
 
   let currentUser = {};
-  let revenueChart = null;
-  let performanceChart = null;
+  let revenueChart = null, performanceChart = null, financeChart = null;
+  let allBookings = [], allTours = [], allFinance = [], allUsers = [], allLogs = [];
+  let dashboardChartData = { labels: [], revenue: [], bookings: [] };
+  let currentRange = '3m';
+  const dateRangeCycle = ['This Year','This Month','Last 30 Days','All Time'];
+  let dateRangeIdx = 0;
 
   // ---------------- API HELPERS ----------------
   async function apiGet(action, params) {
     let url = BASE_URL + "?action=" + action;
-    if (params) {
-      for (const k in params) url += "&" + k + "=" + encodeURIComponent(params[k]);
-    }
+    if (params) for (const k in params) url += "&" + k + "=" + encodeURIComponent(params[k]);
     const res = await fetch(url);
     return res.json();
   }
-
   async function apiPost(body) {
-    const res = await fetch(BASE_URL, {
-      method: "POST",
-      body: JSON.stringify(body)
-    });
+    const res = await fetch(BASE_URL, { method: "POST", body: JSON.stringify(body) });
     return res.json();
+  }
+  function actorPayload() { return { name: currentUser.name, role: currentUser.role, id: currentUser.id }; }
+  function fmtMoney(n) { return "৳" + Number(n || 0).toLocaleString('en-IN'); }
+
+  function showToast(msg, type) {
+    const wrap = document.getElementById('toast-wrap');
+    const el = document.createElement('div');
+    el.className = 'toast' + (type ? ' ' + type : '');
+    el.textContent = msg;
+    wrap.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 2600);
   }
 
   // ---------------- AUTH ----------------
+  function checkBaseUrl() { return BASE_URL.indexOf("PASTE_YOUR") !== 0; }
+
   async function doLogin() {
     const u = document.getElementById('user').value.trim();
     const p = document.getElementById('pass').value.trim();
@@ -254,8 +632,8 @@
     errEl.style.display = "none";
 
     if (!u || !p) { errEl.textContent = "ইউজারনেম ও পাসওয়ার্ড দিন"; errEl.style.display = "block"; return; }
-    if (BASE_URL.indexOf("PASTE_YOUR") === 0) {
-      errEl.textContent = "কোডের ভেতর BASE_URL এখনো বসানো হয়নি";
+    if (!checkBaseUrl()) {
+      errEl.textContent = "কোডের ভেতর BASE_URL এখনো বসানো হয়নি — Code.gs ডিপ্লয় করে exec লিংক বসান।";
       errEl.style.display = "block";
       return;
     }
@@ -265,13 +643,8 @@
       const res = await apiPost({ action: "login", username: u, password: p });
       if (res.success) {
         currentUser = res;
-        document.getElementById('who-name').innerText = res.name;
-        document.getElementById('who-role').innerText = res.role;
-        document.getElementById('who-av').innerText = (res.name || "A").charAt(0).toUpperCase();
-        document.getElementById('welcome-msg').innerText = "Welcome back, " + res.name;
-        document.getElementById('login-screen').style.display = "none";
-        document.getElementById('app-screen').style.display = "block";
-        loadDashboard();
+        sessionStorage.setItem('travelora_user', JSON.stringify(res));
+        enterApp();
       } else {
         errEl.textContent = res.message || "ভুল ইউজারনেম বা পাসওয়ার্ড!";
         errEl.style.display = "block";
@@ -283,24 +656,125 @@
     btn.disabled = false; btn.innerText = "Login";
   }
 
-  function logout() { location.reload(); }
+  function enterApp() {
+    document.getElementById('who-name').innerText = currentUser.name;
+    document.getElementById('who-role').innerText = currentUser.role;
+    document.getElementById('who-av').innerText = (currentUser.name || "A").charAt(0).toUpperCase();
+    document.getElementById('tb-name').childNodes[0].nodeValue = currentUser.name;
+    document.getElementById('tb-role').innerText = currentUser.role;
+    document.getElementById('tb-av').innerText = (currentUser.name || "A").charAt(0).toUpperCase();
+    document.getElementById('page-subtitle').innerText = "Welcome back, " + currentUser.name;
 
-  // ---------------- DASHBOARD ----------------
-  function fmtMoney(n) { return "৳" + Number(n || 0).toLocaleString('en-IN'); }
+    applyRolePermissions();
 
+    document.getElementById('login-screen').style.display = "none";
+    document.getElementById('app-screen').style.display = "block";
+    loadDashboard();
+  }
+
+  function applyRolePermissions() {
+    const isAdmin = currentUser.role === 'Admin';
+    document.getElementById('nav-users').style.display = isAdmin ? 'flex' : 'none';
+    document.getElementById('fin-add-btn').style.display = isAdmin ? 'inline-flex' : 'none';
+    document.getElementById('settings-agency-card').style.display = isAdmin ? 'block' : 'none';
+  }
+
+  function logout() {
+    sessionStorage.removeItem('travelora_user');
+    location.reload();
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = sessionStorage.getItem('travelora_user');
+    if (saved) { try { currentUser = JSON.parse(saved); enterApp(); } catch (e) {} }
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.tb-profile')) document.getElementById('profile-panel').classList.remove('show');
+      if (!e.target.closest('.tb-icon-btn') && !e.target.closest('.notif-panel')) document.getElementById('notif-panel').classList.remove('show');
+    });
+  });
+
+  // ---------------- SIDEBAR (mobile) ----------------
+  function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('show'); }
+  function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('show'); }
+
+  // ---------------- TOPBAR WIDGETS ----------------
+  function toggleProfileMenu(e) { e.stopPropagation(); document.getElementById('notif-panel').classList.remove('show'); document.getElementById('profile-panel').classList.toggle('show'); }
+  function toggleNotif(e) { e.stopPropagation(); document.getElementById('profile-panel').classList.remove('show'); document.getElementById('notif-panel').classList.toggle('show'); }
+  function closeAllDropdowns() { document.getElementById('profile-panel').classList.remove('show'); document.getElementById('notif-panel').classList.remove('show'); }
+  function cycleDateRange() { dateRangeIdx = (dateRangeIdx + 1) % dateRangeCycle.length; document.getElementById('tb-daterange-label').innerText = dateRangeCycle[dateRangeIdx]; }
+  function globalSearch() {
+    const val = document.getElementById('tb-search-input').value;
+    showPage('bookings');
+    setTimeout(() => { document.getElementById('bk-search').value = val; renderBookingsTable(); }, 50);
+  }
+
+  // ---------------- PAGE ROUTER ----------------
+  const PAGE_META = {
+    dashboard: { title: 'Dashboard', subtitle: () => 'Welcome back, ' + currentUser.name },
+    bookings: { title: 'Bookings', subtitle: () => 'সব বুকিং দেখুন, যোগ করুন ও পরিচালনা করুন' },
+    tours: { title: 'Manage Tours', subtitle: () => 'আপনার ট্যুর প্যাকেজ তৈরি ও এডিট করুন' },
+    finance: { title: 'Accounts / Finance', subtitle: () => 'আয়, ব্যয় ও লাভের হিসাব' },
+    users: { title: 'Users & Roles', subtitle: () => 'স্টাফ অ্যাকাউন্ট ও পারমিশন পরিচালনা করুন' },
+    logs: { title: 'Activity Logs', subtitle: () => 'সিস্টেমের সাম্প্রতিক সব কার্যক্রম' },
+    settings: { title: 'Settings', subtitle: () => 'এজেন্সি প্রোফাইল ও অ্যাকাউন্ট সেটিংস' }
+  };
+
+  function showPage(key) {
+    if (key === 'users' && currentUser.role !== 'Admin') {
+      document.getElementById('users-admin-only').classList.add('hidden');
+      document.getElementById('users-denied').classList.remove('hidden');
+    }
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + key).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === key));
+    document.getElementById('page-title').innerText = PAGE_META[key].title;
+    document.getElementById('page-subtitle').innerText = PAGE_META[key].subtitle();
+    closeSidebar();
+
+    if (key === 'bookings') loadBookings();
+    if (key === 'tours') loadTours();
+    if (key === 'finance') loadFinance();
+    if (key === 'users' && currentUser.role === 'Admin') loadUsers();
+    if (key === 'logs') loadLogs();
+    if (key === 'settings') loadSettingsPage();
+  }
+
+  // ================= DASHBOARD =================
   async function loadDashboard() {
     try {
       const data = await apiGet("dashboard");
-      if (data.status !== "success") { alert("ডেটা লোড করা যায়নি: " + (data.message || "")); return; }
+      if (data.status !== "success") { showToast("ডেটা লোড করা যায়নি: " + (data.message || ""), 'error'); return; }
       renderStats(data.stats);
-      renderRevenueChart(data.chart);
+      dashboardChartData = data.chart;
+      renderRevenueChartFiltered();
       renderPerformanceChart(data.bookingPerformance);
       renderRecentBookings(data.recentBookings);
       renderUpcomingTours(data.upcomingTours);
       renderActivity(data.recentActivity);
-    } catch (e) {
-      alert("ড্যাশবোর্ড লোড এরর: " + e.message);
+      renderNotifDropdown(data.recentActivity);
+    } catch (e) { showToast("ড্যাশবোর্ড লোড এরর: " + e.message, 'error'); }
+  }
+
+  document.addEventListener('click', (e) => {
+    const tab = e.target.closest('#range-tabs .tab');
+    if (tab) {
+      document.querySelectorAll('#range-tabs .tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentRange = tab.dataset.range;
+      renderRevenueChartFiltered();
     }
+  });
+
+  function renderRevenueChartFiltered() {
+    const labels = dashboardChartData.labels || [];
+    const rev = dashboardChartData.revenue || [];
+    const bk = dashboardChartData.bookings || [];
+    let n = labels.length;
+    if (currentRange === '7' || currentRange === '30') n = Math.min(1, labels.length);
+    if (currentRange === '3m') n = Math.min(3, labels.length);
+    if (currentRange === '12m') n = labels.length;
+    const sliceFrom = labels.length - n;
+    renderRevenueChart({ labels: labels.slice(sliceFrom), revenue: rev.slice(sliceFrom), bookings: bk.slice(sliceFrom) });
   }
 
   function renderStats(s) {
@@ -334,14 +808,7 @@
     if (performanceChart) performanceChart.destroy();
     performanceChart = new Chart(ctx, {
       type: 'bar',
-      data: {
-        labels: ['Confirmed', 'Pending', 'Cancelled'],
-        datasets: [{
-          data: [perf.confirmed, perf.pending, perf.cancelled],
-          backgroundColor: ['#1a9e5c', '#ff9f43', '#d84c4c'],
-          borderRadius: 6
-        }]
-      },
+      data: { labels: ['Confirmed', 'Pending', 'Cancelled'], datasets: [{ data: [perf.confirmed, perf.pending, perf.cancelled], backgroundColor: ['#1a9e5c', '#ff9f43', '#d84c4c'], borderRadius: 6 }] },
       options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
     });
   }
@@ -352,15 +819,7 @@
     if (!list || !list.length) { body.innerHTML = ""; empty.classList.remove('hidden'); return; }
     empty.classList.add('hidden');
     body.innerHTML = list.map(b => `
-      <tr>
-        <td>#${b.bookingId}</td>
-        <td>${b.customer}</td>
-        <td>${b.tour}</td>
-        <td>${b.travelDate}</td>
-        <td>${b.travelers}</td>
-        <td>${fmtMoney(b.amount)}</td>
-        <td><span class="badge ${b.status}">${b.status}</span></td>
-      </tr>
+      <tr><td>#${b.bookingId}</td><td>${b.customer}</td><td>${b.tour}</td><td>${b.travelDate}</td><td>${b.travelers}</td><td>${fmtMoney(b.amount)}</td><td><span class="badge ${b.status}">${b.status}</span></td></tr>
     `).join('');
   }
 
@@ -370,14 +829,7 @@
     if (!list || !list.length) { wrap.innerHTML = ""; empty.classList.remove('hidden'); return; }
     empty.classList.add('hidden');
     wrap.innerHTML = list.map(t => `
-      <div class="tour-item">
-        <div class="dot">🧭</div>
-        <div style="flex:1;">
-          <div class="name">${t.name}</div>
-          <div class="meta">Tour Date: ${t.travelDate || 'TBD'} · ${t.travelers} Travelers</div>
-          <div class="progress-bar"><span style="width:${t.progress}%"></span></div>
-        </div>
-      </div>
+      <div class="tour-item"><div class="dot">🧭</div><div style="flex:1;min-width:0;"><div class="name">${t.name}</div><div class="meta">Tour Date: ${t.travelDate || 'TBD'} · ${t.travelers} Travelers</div><div class="progress-bar"><span style="width:${t.progress}%"></span></div></div></div>
     `).join('');
   }
 
@@ -387,16 +839,345 @@
     if (!list || !list.length) { wrap.innerHTML = ""; empty.classList.remove('hidden'); return; }
     empty.classList.add('hidden');
     wrap.innerHTML = list.map(a => `
-      <div class="activity-item">
-        <div class="dot"></div>
-        <div style="flex:1;">
-          <div class="action">${a.action}</div>
-          <div class="details">${a.details}</div>
+      <div class="activity-item"><div class="dot"></div><div style="flex:1;min-width:0;"><div class="action">${a.action}</div><div class="details">${a.details}</div></div><div class="time">${a.time}</div></div>
+    `).join('');
+  }
+
+  function renderNotifDropdown(list) {
+    const wrap = document.getElementById('notif-list');
+    const dot = document.getElementById('notif-dot');
+    if (!list || !list.length) { wrap.innerHTML = '<div style="padding:10px 8px;color:var(--muted);font-size:13px;">কোনো নোটিফিকেশন নেই</div>'; dot.style.display = 'none'; return; }
+    dot.style.display = 'block';
+    wrap.innerHTML = list.map(a => `<div class="row"><b>${a.action}</b><span>${a.details} · ${a.time}</span></div>`).join('');
+  }
+
+  // ================= BOOKINGS =================
+  async function loadBookings() {
+    try {
+      const res = await apiGet('bookings');
+      if (res.status !== 'success') { showToast(res.message || 'বুকিং লোড এরর', 'error'); return; }
+      allBookings = res.data;
+      renderBookingsTable();
+    } catch (e) { showToast('বুকিং লোড এরর: ' + e.message, 'error'); }
+  }
+
+  function renderBookingsTable() {
+    const q = (document.getElementById('bk-search').value || '').toLowerCase();
+    const statusF = document.getElementById('bk-status-filter').value;
+    let list = allBookings.filter(b =>
+      (!q || (b.Customer || '').toLowerCase().includes(q) || (b.TourName || '').toLowerCase().includes(q)) &&
+      (!statusF || b.Status === statusF)
+    );
+    const body = document.getElementById('bookings-body');
+    const empty = document.getElementById('bookings-empty');
+    if (!list.length) { body.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    body.innerHTML = list.map(b => `
+      <tr>
+        <td>#${b.ID}</td><td>${b.Customer}</td><td>${b.Phone || '-'}</td><td>${b.TourName}</td>
+        <td>${fmtDateDisplay(b.TravelDate)}</td><td>${b.Travelers}</td><td>${fmtMoney(b.Amount)}</td>
+        <td><span class="badge ${b.Status}">${b.Status}</span></td>
+        <td>
+          <button class="btn-icon" title="Edit" onclick='openBookingModal(${JSON.stringify(b)})'>✎</button>
+          <button class="btn-icon danger" title="Delete" onclick="deleteBookingRow('${b.ID}')">🗑</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function fmtDateDisplay(v) { if (!v) return '-'; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
+
+  function openBookingModal(b) {
+    const tourOptions = allTours.map(t => `<option value="${t.Name}" ${b && b.TourName === t.Name ? 'selected' : ''}>${t.Name}</option>`).join('');
+    setModal(b ? 'Edit Booking' : 'Add Booking', `
+      <label>Customer Name</label><input id="m-customer" value="${b ? b.Customer : ''}">
+      <label>Phone</label><input id="m-phone" value="${b ? (b.Phone || '') : ''}">
+      <label>Tour</label><select id="m-tour">${tourOptions || '<option value="">কোনো ট্যুর নেই — আগে Manage Tours এ ট্যুর যোগ করুন</option>'}</select>
+      <div class="modal-row2">
+        <div><label>Travel Date</label><input type="date" id="m-date" value="${b ? toDateInput(b.TravelDate) : ''}"></div>
+        <div><label>Travelers</label><input type="number" min="1" id="m-travelers" value="${b ? b.Travelers : 1}"></div>
+      </div>
+      <div class="modal-row2">
+        <div><label>Amount (৳)</label><input type="number" min="0" id="m-amount" value="${b ? b.Amount : ''}"></div>
+        <div><label>Status</label><select id="m-status">
+          <option ${b && b.Status === 'Pending' ? 'selected' : ''}>Pending</option>
+          <option ${b && b.Status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+          <option ${b && b.Status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+        </select></div>
+      </div>
+    `, async () => {
+      const data = {
+        id: b ? b.ID : undefined,
+        customer: val('m-customer'), phone: val('m-phone'), tourName: val('m-tour'),
+        travelDate: val('m-date'), travelers: Number(val('m-travelers')), amount: Number(val('m-amount')), status: val('m-status')
+      };
+      if (!data.customer || !data.tourName || !data.travelDate) return showModalMsg('কাস্টমার, ট্যুর ও তারিখ আবশ্যক');
+      const res = await apiPost({ action: b ? 'updateBooking' : 'addBooking', data, actor: actorPayload() });
+      if (res.success) { showToast(res.message, 'success'); closeModal(); loadBookings(); } else showModalMsg(res.message);
+    });
+  }
+
+  async function deleteBookingRow(id) {
+    if (!confirm('আপনি কি নিশ্চিত এই বুকিং মুছে ফেলতে চান?')) return;
+    const res = await apiPost({ action: 'deleteBooking', id, actor: actorPayload() });
+    if (res.success) { showToast(res.message, 'success'); loadBookings(); } else showToast(res.message, 'error');
+  }
+
+  function toDateInput(v) { const d = new Date(v); if (isNaN(d.getTime())) return ''; return d.toISOString().slice(0, 10); }
+
+  // ================= TOURS =================
+  async function loadTours() {
+    try {
+      const res = await apiGet('tours');
+      if (res.status !== 'success') { showToast(res.message || 'ট্যুর লোড এরর', 'error'); return; }
+      allTours = res.data;
+      renderToursGrid();
+    } catch (e) { showToast('ট্যুর লোড এরর: ' + e.message, 'error'); }
+  }
+
+  function renderToursGrid() {
+    const q = (document.getElementById('tour-search').value || '').toLowerCase();
+    const list = allTours.filter(t => !q || (t.Name || '').toLowerCase().includes(q) || (t.Destination || '').toLowerCase().includes(q));
+    const grid = document.getElementById('tours-grid');
+    const empty = document.getElementById('tours-empty');
+    if (!list.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    grid.innerHTML = list.map(t => `
+      <div class="tour-card">
+        <div class="thead">
+          <div><div class="tname">${t.Name}</div><div class="tdest">📍 ${t.Destination}</div></div>
+          <span class="badge ${t.Status}">${t.Status}</span>
         </div>
-        <div class="time">${a.time}</div>
+        <div class="tprice">${fmtMoney(t.Price)}</div>
+        <div class="tmeta"><span>⏱ ${t.Duration}</span><span>👥 ${t.Capacity} সিট</span></div>
+        ${t.Description ? `<div class="tdesc">${t.Description}</div>` : ''}
+        <div class="tactions">
+          <button class="btn btn-outline btn-sm" onclick='openTourModal(${JSON.stringify(t)})'>✎ Edit</button>
+          <button class="btn-icon danger" onclick="deleteTourRow('${t.ID}')">🗑</button>
+        </div>
       </div>
     `).join('');
   }
+
+  function openTourModal(t) {
+    setModal(t ? 'Edit Tour' : 'Add New Tour', `
+      <label>Tour Name</label><input id="m-name" value="${t ? t.Name : ''}">
+      <label>Destination</label><input id="m-dest" value="${t ? t.Destination : ''}">
+      <div class="modal-row2">
+        <div><label>Price (৳)</label><input type="number" min="0" id="m-price" value="${t ? t.Price : ''}"></div>
+        <div><label>Capacity</label><input type="number" min="1" id="m-cap" value="${t ? t.Capacity : 20}"></div>
+      </div>
+      <div class="modal-row2">
+        <div><label>Duration</label><input id="m-dur" placeholder="e.g. 3 Days 2 Nights" value="${t ? t.Duration : ''}"></div>
+        <div><label>Status</label><select id="m-tstatus"><option ${t && t.Status === 'Active' ? 'selected' : ''}>Active</option><option ${t && t.Status === 'Inactive' ? 'selected' : ''}>Inactive</option></select></div>
+      </div>
+      <label>Description</label><textarea id="m-desc">${t ? (t.Description || '') : ''}</textarea>
+    `, async () => {
+      const data = { id: t ? t.ID : undefined, name: val('m-name'), destination: val('m-dest'), price: Number(val('m-price')), duration: val('m-dur'), capacity: Number(val('m-cap')), status: val('m-tstatus'), description: val('m-desc') };
+      if (!data.name || !data.destination) return showModalMsg('ট্যুরের নাম ও গন্তব্য আবশ্যক');
+      const res = await apiPost({ action: t ? 'updateTour' : 'addTour', data, actor: actorPayload() });
+      if (res.success) { showToast(res.message, 'success'); closeModal(); loadTours(); } else showModalMsg(res.message);
+    });
+  }
+
+  async function deleteTourRow(id) {
+    if (!confirm('আপনি কি নিশ্চিত এই ট্যুর মুছে ফেলতে চান?')) return;
+    const res = await apiPost({ action: 'deleteTour', id, actor: actorPayload() });
+    if (res.success) { showToast(res.message, 'success'); loadTours(); } else showToast(res.message, 'error');
+  }
+
+  // ================= FINANCE =================
+  async function loadFinance() {
+    try {
+      const res = await apiGet('finance');
+      if (res.status !== 'success') { showToast(res.message || 'হিসাব লোড এরর', 'error'); return; }
+      allFinance = res.data;
+      document.getElementById('fin-income').innerText = fmtMoney(res.summary.income);
+      document.getElementById('fin-expense').innerText = fmtMoney(res.summary.expense);
+      document.getElementById('fin-net').innerText = fmtMoney(res.summary.net);
+      renderFinanceTable();
+      renderFinanceChart(res.summary);
+    } catch (e) { showToast('হিসাব লোড এরর: ' + e.message, 'error'); }
+  }
+
+  function renderFinanceTable() {
+    const body = document.getElementById('finance-body');
+    const empty = document.getElementById('finance-empty');
+    const isAdmin = currentUser.role === 'Admin';
+    if (!allFinance.length) { body.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    body.innerHTML = allFinance.map(f => `
+      <tr>
+        <td>${fmtDateDisplay(f.Date)}</td><td><span class="badge ${f.Type}">${f.Type}</span></td><td>${f.Category}</td>
+        <td>${fmtMoney(f.Amount)}</td><td>${f.RelatedBooking || '-'}</td><td>${f.CreatedBy || '-'}</td><td>${f.Note || '-'}</td>
+        <td>${isAdmin ? `<button class="btn-icon danger" onclick="deleteFinanceRow('${f.ID}')">🗑</button>` : ''}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderFinanceChart(summary) {
+    const ctx = document.getElementById('financeChart');
+    if (financeChart) financeChart.destroy();
+    financeChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels: ['Income', 'Expense'], datasets: [{ data: [summary.income, summary.expense], backgroundColor: ['#1a9e5c', '#d84c4c'] }] },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+
+  function openFinanceModal() {
+    setModal('Add Finance Entry', `
+      <div class="modal-row2">
+        <div><label>Type</label><select id="m-ftype"><option>Income</option><option>Expense</option></select></div>
+        <div><label>Amount (৳)</label><input type="number" min="0" id="m-famount"></div>
+      </div>
+      <label>Category</label><input id="m-fcat" placeholder="e.g. Booking Payment / Office Rent">
+      <div class="modal-row2">
+        <div><label>Date</label><input type="date" id="m-fdate" value="${new Date().toISOString().slice(0, 10)}"></div>
+        <div><label>Related Booking ID (optional)</label><input id="m-frelated"></div>
+      </div>
+      <label>Note (optional)</label><textarea id="m-fnote"></textarea>
+    `, async () => {
+      const data = { type: val('m-ftype'), amount: Number(val('m-famount')), category: val('m-fcat'), date: val('m-fdate'), relatedBooking: val('m-frelated'), note: val('m-fnote') };
+      if (!data.category || !data.amount) return showModalMsg('ক্যাটাগরি ও পরিমাণ আবশ্যক');
+      const res = await apiPost({ action: 'addFinance', data, actor: actorPayload() });
+      if (res.success) { showToast(res.message, 'success'); closeModal(); loadFinance(); } else showModalMsg(res.message);
+    });
+  }
+
+  async function deleteFinanceRow(id) {
+    if (!confirm('আপনি কি নিশ্চিত এই এন্ট্রি মুছে ফেলতে চান?')) return;
+    const res = await apiPost({ action: 'deleteFinance', id, actor: actorPayload() });
+    if (res.success) { showToast(res.message, 'success'); loadFinance(); } else showToast(res.message, 'error');
+  }
+
+  // ================= USERS & ROLES =================
+  async function loadUsers() {
+    try {
+      const res = await apiGet('users');
+      if (res.status !== 'success') { showToast(res.message || 'ইউজার লোড এরর', 'error'); return; }
+      allUsers = res.data;
+      renderUsersTable();
+      loadPermissions();
+    } catch (e) { showToast('ইউজার লোড এরর: ' + e.message, 'error'); }
+  }
+
+  function renderUsersTable() {
+    const body = document.getElementById('users-body');
+    body.innerHTML = allUsers.map(u => `
+      <tr>
+        <td>${u.Name}</td><td>${u.Email || '-'}</td><td>${u.Username}</td>
+        <td><span class="badge ${u.Role}">${u.Role}</span></td><td><span class="badge ${u.Status}">${u.Status}</span></td>
+        <td>${fmtDateDisplay(u.CreatedAt)}</td>
+        <td>
+          <button class="btn-icon" title="Edit" onclick='openUserModal(${JSON.stringify(u)})'>✎</button>
+          <button class="btn-icon danger" title="Delete" onclick="deleteUserRow('${u.ID}')">🗑</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  async function loadPermissions() {
+    const res = await apiGet('permissions');
+    if (res.status !== 'success') return;
+    const body = document.getElementById('permissions-body');
+    body.innerHTML = res.data.matrix.map(m => `<tr><td>${m.module}</td><td>${m.Admin}</td><td>${m.Moderator}</td></tr>`).join('');
+  }
+
+  function openUserModal(u) {
+    setModal(u ? 'Edit User' : 'Add User', `
+      <label>Full Name</label><input id="m-uname" value="${u ? u.Name : ''}">
+      <label>Email</label><input id="m-uemail" value="${u ? (u.Email || '') : ''}">
+      <label>Username</label><input id="m-uuser" value="${u ? u.Username : ''}" ${u ? 'disabled' : ''}>
+      <label>${u ? 'New Password (ফাঁকা রাখলে আগেরটাই থাকবে)' : 'Password'}</label><input type="password" id="m-upass">
+      <div class="modal-row2">
+        <div><label>Role</label><select id="m-urole"><option ${u && u.Role === 'Admin' ? 'selected' : ''}>Admin</option><option ${!u || u.Role === 'Moderator' ? 'selected' : ''}>Moderator</option></select></div>
+        <div><label>Status</label><select id="m-ustatus"><option ${!u || u.Status === 'Active' ? 'selected' : ''}>Active</option><option ${u && u.Status === 'Inactive' ? 'selected' : ''}>Inactive</option></select></div>
+      </div>
+    `, async () => {
+      const data = { id: u ? u.ID : undefined, name: val('m-uname'), email: val('m-uemail'), username: val('m-uuser'), password: val('m-upass'), role: val('m-urole'), status: val('m-ustatus') };
+      if (!data.name || !data.username) return showModalMsg('নাম ও ইউজারনেম আবশ্যক');
+      if (!u && !data.password) return showModalMsg('নতুন ইউজারের জন্য পাসওয়ার্ড আবশ্যক');
+      const res = await apiPost({ action: u ? 'updateUser' : 'addUser', data, actor: actorPayload() });
+      if (res.success) { showToast(res.message, 'success'); closeModal(); loadUsers(); } else showModalMsg(res.message);
+    });
+  }
+
+  async function deleteUserRow(id) {
+    if (!confirm('আপনি কি নিশ্চিত এই ইউজার মুছে ফেলতে চান?')) return;
+    const res = await apiPost({ action: 'deleteUser', id, actor: actorPayload() });
+    if (res.success) { showToast(res.message, 'success'); loadUsers(); } else showToast(res.message, 'error');
+  }
+
+  // ================= ACTIVITY LOGS =================
+  async function loadLogs() {
+    try {
+      const res = await apiGet('logs');
+      if (res.status !== 'success') { showToast(res.message || 'লগ লোড এরর', 'error'); return; }
+      allLogs = res.data;
+      renderLogsTable();
+    } catch (e) { showToast('লগ লোড এরর: ' + e.message, 'error'); }
+  }
+
+  const TYPE_ICON = { booking: '📅', tour: '🧭', finance: '💰', user: '👤', settings: '⚙️' };
+  function renderLogsTable() {
+    const f = document.getElementById('log-type-filter').value;
+    const list = allLogs.filter(l => !f || l.Type === f);
+    const wrap = document.getElementById('logs-list');
+    const empty = document.getElementById('logs-empty');
+    if (!list.length) { wrap.innerHTML = ''; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    wrap.innerHTML = list.map(l => `
+      <div class="activity-item"><div style="font-size:16px;">${TYPE_ICON[l.Type] || '•'}</div><div style="flex:1;min-width:0;"><div class="action">${l.Action}</div><div class="details">${l.Details} ${l.User ? '· ' + l.User : ''}</div></div><div class="time">${l.Timestamp}</div></div>
+    `).join('');
+  }
+
+  // ================= SETTINGS =================
+  async function loadSettingsPage() {
+    if (currentUser.role === 'Admin') {
+      const res = await apiGet('settings');
+      if (res.status === 'success') {
+        document.getElementById('set-agencyName').value = res.data.agencyName || '';
+        document.getElementById('set-currencySymbol').value = res.data.currencySymbol || '৳';
+        document.getElementById('set-supportEmail').value = res.data.supportEmail || '';
+        document.getElementById('set-supportPhone').value = res.data.supportPhone || '';
+      }
+    }
+  }
+
+  async function saveAgencySettings() {
+    const data = { agencyName: val('set-agencyName'), currencySymbol: val('set-currencySymbol'), supportEmail: val('set-supportEmail'), supportPhone: val('set-supportPhone') };
+    const res = await apiPost({ action: 'updateSettings', data, actor: actorPayload() });
+    const msg = document.getElementById('settings-msg');
+    msg.style.color = res.success ? 'var(--ok)' : 'var(--bad)';
+    msg.style.display = 'block';
+    msg.textContent = res.message;
+    if (res.success) showToast(res.message, 'success');
+  }
+
+  async function savePassword() {
+    const oldP = val('pw-old'), newP = val('pw-new'), confP = val('pw-confirm');
+    const msg = document.getElementById('password-msg');
+    msg.style.display = 'block';
+    if (!oldP || !newP) { msg.style.color = 'var(--bad)'; msg.textContent = 'সব ফিল্ড পূরণ করুন'; return; }
+    if (newP !== confP) { msg.style.color = 'var(--bad)'; msg.textContent = 'নতুন পাসওয়ার্ড মিলছে না'; return; }
+    const res = await apiPost({ action: 'changePassword', userId: currentUser.id, oldPassword: oldP, newPassword: newP, actorName: currentUser.name });
+    msg.style.color = res.success ? 'var(--ok)' : 'var(--bad)';
+    msg.textContent = res.message;
+    if (res.success) { showToast(res.message, 'success'); document.getElementById('pw-old').value = ''; document.getElementById('pw-new').value = ''; document.getElementById('pw-confirm').value = ''; }
+  }
+
+  // ================= MODAL HELPERS =================
+  function val(id) { return document.getElementById(id).value; }
+  function setModal(title, bodyHtml, onSave) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-body').innerHTML = bodyHtml + '<div class="modal-msg" id="modal-msg"></div>';
+    document.getElementById('modal-overlay').classList.add('show');
+    const saveBtn = document.getElementById('modal-save-btn');
+    saveBtn.onclick = async () => { saveBtn.disabled = true; saveBtn.innerText = 'Saving...'; await onSave(); saveBtn.disabled = false; saveBtn.innerText = 'Save'; };
+  }
+  function showModalMsg(msg) { const el = document.getElementById('modal-msg'); if (el) { el.style.display = 'block'; el.textContent = msg; } }
+  function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
 </script>
 </body>
 </html>
