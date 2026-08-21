@@ -887,13 +887,17 @@
 
   function fmtDateDisplay(v) { if (!v) return '-'; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
 
- async function openBookingModal(b) {
-    // ডাটা লোড করার জন্য সার্ভারে কল করা
-    const tourRes = await apiPost({ action: 'tours' });
-    const allToursList = (tourRes.status === 'success' && tourRes.data) ? tourRes.data : [];
+async function openBookingModal(b) {
+    // ট্যুর লিস্ট যদি আগে থেকে লোড করা না থাকে, তাহলে সার্ভার থেকে আনবে (apiGet দিয়ে)
+    if (!allTours || allTours.length === 0) {
+      const tourRes = await apiGet('tours');
+      if (tourRes.status === 'success' && tourRes.data) {
+        allTours = tourRes.data;
+      }
+    }
 
-    // ট্যুর অপশন তৈরি করা (সাথে data-boarding যুক্ত করা হয়েছে)
-    const tourOptions = allToursList.map(t => 
+    // ট্যুর অপশন তৈরি করা
+    const tourOptions = allTours.map(t => 
         `<option value="${t.Name}" data-time="${t.DepartureTime || ''}" data-boarding="${t.BoardingPoint || ''}" ${b && b.TourName === t.Name ? 'selected' : ''}>${t.Name}</option>`
     ).join('');
     
@@ -923,7 +927,7 @@
         id: b ? b.ID : undefined,
         customer: val('m-customer'), phone: val('m-phone'), tourName: val('m-tour'),
         travelDate: val('m-date'), travelers: val('m-travelers'),
-        boardingPoint: val('m-boarding'), // এটি এখন ঠিকমতো সেভ হবে
+        boardingPoint: val('m-boarding'),
         amount: Number(val('m-amount')), status: val('m-status')
       };
       if (!data.customer || !data.tourName) return showModalMsg('কাস্টমার ও ট্যুর আবশ্যক');
