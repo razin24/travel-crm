@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travelora | Travel Agency CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --green-deep:#173226;
+    --green-mid:#1f4436;
+    --cream:#f4f6f5;
+    --card:#ffffff;
+    --text:#243430;
+    --muted:#7c8b86;
+    --orange:#ff9f43;
+    --line:#e7ece9;
+    --ok:#1a9e5c;
+    --ok-bg:#e5f7ee;
+    --warn:#c98a12;
+    --warn-bg:#fdf1dc;
+    --bad:#d84c4c;
+    --bad-bg:#fdeaea;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Hind Siliguri','Poppins',sans-serif;background:var(--cream);color:var(--text);}
+  h1,h2,h3,.brand{font-family:'Poppins','Hind Siliguri',sans-serif;}
+  .hidden{display:none !important;}
+
+  /* ---------- LOGIN ---------- */
+  #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 20% 20%, var(--green-mid), var(--green-deep) 70%);}
+  .login-card{background:#fff;padding:40px 34px;border-radius:16px;width:92%;max-width:360px;
+    box-shadow:0 30px 60px rgba(0,0,0,.25);text-align:center;}
+  .login-card .logo{font-size:26px;font-weight:700;color:var(--green-deep);letter-spacing:1px;}
+  .login-card .logo span{color:var(--orange);}
+  .login-card .tag{font-size:12px;color:var(--muted);margin-bottom:24px;letter-spacing:.5px;text-transform:uppercase;}
+  .login-card input{width:100%;padding:13px 14px;margin:8px 0;border:1px solid var(--line);
+    border-radius:8px;font-size:15px;font-family:inherit;background:#f9faf9;}
+  .login-card input:focus{outline:2px solid var(--orange);background:#fff;}
+  .login-card button{width:100%;margin-top:16px;padding:13px;border:none;border-radius:8px;
+    background:var(--orange);color:#fff;font-weight:600;font-size:15px;cursor:pointer;transition:.15s;}
+  .login-card button:hover{filter:brightness(1.05);}
+  .login-card button:disabled{opacity:.6;cursor:default;}
+  #login-error{color:var(--bad);font-size:13px;margin-top:10px;display:none;}
+
+  /* ---------- APP SHELL ---------- */
+  #app-screen{display:none;}
+  .shell{display:flex;min-height:100vh;}
+  .sidebar{width:250px;background:var(--green-deep);color:#eef3f0;flex-shrink:0;
+    padding:22px 16px;display:flex;flex-direction:column;}
+  .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 8px 22px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:18px;}
+  .sidebar .brand .icon{width:34px;height:34px;border-radius:9px;background:var(--orange);
+    display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .sidebar .brand .txt b{display:block;font-size:16px;letter-spacing:1px;}
+  .sidebar .brand .txt small{color:#9fb3ab;font-size:10.5px;letter-spacing:.5px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:9px;
+    color:#c9d8d1;font-size:14.5px;font-weight:500;cursor:pointer;margin-bottom:2px;}
+  .nav-item:hover{background:rgba(255,255,255,.06);}
+  .nav-item.active{background:var(--orange);color:#fff;}
+  .sidebar .spacer{flex:1;}
+  .sidebar .who{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;background:rgba(255,255,255,.05);}
+  .sidebar .who .av{width:34px;height:34px;border-radius:50%;background:var(--orange);
+    display:flex;align-items:center;justify-content:center;font-weight:700;}
+  .sidebar .who small{color:#9fb3ab;display:block;font-size:11px;}
+  .sidebar .who .logout{margin-left:auto;cursor:pointer;color:#e08a8a;font-size:12px;}
+
+  .main{flex:1;padding:26px 30px;min-width:0;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+  .topbar h1{font-size:24px;margin:0;}
+  .topbar p{margin:2px 0 0;color:var(--muted);font-size:13.5px;}
+  .refresh-btn{border:1px solid var(--line);background:#fff;padding:9px 16px;border-radius:8px;
+    font-size:13px;cursor:pointer;color:var(--green-deep);font-weight:600;}
+  .refresh-btn:hover{background:#f1f3f2;}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:18px;}
+  .stat-card{background:var(--card);border-radius:14px;padding:18px 20px;box-shadow:0 2px 10px rgba(20,40,32,.05);}
+  .stat-card .top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13.5px;font-weight:500;}
+  .stat-card .icon{width:32px;height:32px;border-radius:9px;background:#eef6f1;display:flex;align-items:center;justify-content:center;}
+  .stat-card .val{font-size:26px;font-weight:700;margin-top:8px;}
+  .stat-card .sub{font-size:12.5px;color:var(--ok);margin-top:4px;}
+  .stat-card .sub.warn{color:var(--warn);}
+
+  .grid-2{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px;}
+  .panel{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(20,40,32,.05);}
+  .panel h3{margin:0 0 14px;font-size:15.5px;}
+  .panel .empty{color:var(--muted);font-size:13px;text-align:center;padding:30px 0;}
+
+  .bottom-grid{display:grid;grid-template-columns:2fr 1fr;gap:18px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:9px 8px;border-bottom:1px solid var(--line);font-size:12.5px;text-transform:uppercase;letter-spacing:.3px;}
+  td{padding:11px 8px;border-bottom:1px solid var(--line);}
+  .badge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+  .badge.Confirmed{background:var(--ok-bg);color:var(--ok);}
+  .badge.Pending{background:var(--warn-bg);color:var(--warn);}
+  .badge.Cancelled{background:var(--bad-bg);color:var(--bad);}
+
+  .tour-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .tour-item:last-child{border-bottom:none;}
+  .tour-item .dot{width:38px;height:38px;border-radius:9px;background:#eef6f1;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;color:var(--green-mid);font-weight:700;}
+  .tour-item .name{font-weight:600;font-size:13.5px;}
+  .tour-item .meta{color:var(--muted);font-size:12px;margin-top:2px;}
+  .progress-bar{height:4px;background:var(--line);border-radius:4px;margin-top:6px;overflow:hidden;}
+  .progress-bar span{display:block;height:100%;background:var(--ok);}
+
+  .activity-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+  .activity-item:last-child{border-bottom:none;}
+  .activity-item .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);margin-top:6px;flex-shrink:0;}
+  .activity-item .action{font-weight:600;font-size:13.5px;}
+  .activity-item .details{color:var(--muted);font-size:12px;margin-top:1px;}
+  .activity-item .time{color:var(--muted);font-size:11px;white-space:nowrap;}
+
+  @media (max-width: 900px){
+    .shell{flex-direction:column;}
+    .sidebar{width:100%;flex-direction:row;overflow-x:auto;align-items:center;padding:12px;}
+    .sidebar .brand{border:none;margin:0 10px 0 0;padding:0;}
+    .sidebar .spacer,.sidebar .who{display:none;}
+    .grid-2,.bottom-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+  <!-- ============ LOGIN ============ -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="logo">TRAVEL<span>ORA</span></div>
+      <div class="tag">Travel Agency CRM</div>
+      <input type="text" id="user" placeholder="Username" autocomplete="off">
+      <input type="password" id="pass" placeholder="Password">
+      <button id="login-btn" onclick="doLogin()">Login</button>
+      <p id="login-error">ভুল ইউজারনেম বা পাসওয়ার্ড!</p>
+    </div>
+  </div>
+
+  <!-- ============ APP ============ -->
+  <div id="app-screen">
+    <div class="shell">
+      <div class="sidebar">
+        <div class="brand">
+          <div class="icon">✈️</div>
+          <div class="txt"><b>TRAVELORA</b><small>Travel Agency CRM</small></div>
+        </div>
+        <div class="nav-item active">Dashboard</div>
+        <div class="nav-item">Bookings</div>
+        <div class="nav-item">Manage Tours</div>
+        <div class="nav-item">Accounts / Finance</div>
+        <div class="nav-item">Users &amp; Roles</div>
+        <div class="nav-item">Activity Logs</div>
+        <div class="nav-item">Settings</div>
+        <div class="spacer"></div>
+        <div class="who">
+          <div class="av" id="who-av">A</div>
+          <div>
+            <div id="who-name" style="font-weight:600;font-size:13.5px;">Admin</div>
+            <small id="who-role">Admin</small>
+          </div>
+          <div class="logout" onclick="logout()">Logout</div>
+        </div>
+      </div>
+
+      <div class="main">
+        <div class="topbar">
+          <div>
+            <h1>Dashboard</h1>
+            <p id="welcome-msg">Welcome back, Admin</p>
+          </div>
+          <button class="refresh-btn" onclick="loadDashboard()">⟳ Refresh</button>
+        </div>
+
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card"><div class="top">Total Revenue<div class="icon">৳</div></div><div class="val">–</div></div>
+          <div class="stat-card"><div class="top">Total Bookings<div class="icon">📅</div></div><div class="val">–</div></div>
+          <div class="stat-card"><div class="top">Active Tours<div class="icon">🧭</div></div><div class="val">–</div></div>
+          <div class="stat-card"><div class="top">Pending Bookings<div class="icon">⏳</div></div><div class="val">–</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <h3>Sales &amp; Revenue Analytics</h3>
+            <canvas id="revenueChart" height="110"></canvas>
+          </div>
+          <div class="panel">
+            <h3>Booking Performance</h3>
+            <canvas id="performanceChart" height="140"></canvas>
+          </div>
+        </div>
+
+        <div class="bottom-grid">
+          <div class="panel">
+            <h3>Recent Bookings</h3>
+            <div style="overflow-x:auto;">
+              <table>
+                <thead><tr><th>Booking ID</th><th>Customer</th><th>Tour</th><th>Travel Date</th><th>Travelers</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="recent-bookings-body"></tbody>
+              </table>
+            </div>
+            <div id="recent-bookings-empty" class="empty hidden">এখনো কোনো বুকিং নেই</div>
+          </div>
+
+          <div class="panel">
+            <h3>Upcoming Tours</h3>
+            <div id="upcoming-tours-list"></div>
+            <div id="upcoming-empty" class="empty hidden">কোনো আসন্ন ট্যুর নেই</div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:18px;">
+          <h3>Recent Activity</h3>
+          <div id="activity-list"></div>
+          <div id="activity-empty" class="empty hidden">কোনো অ্যাক্টিভিটি নেই</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ============================================================
+  //  ⚠️ এখানে আপনার Apps Script Web App URL বসান (.../exec)
+  // ============================================================
+  const BASE_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+  let currentUser = {};
+  let revenueChart = null;
+  let performanceChart = null;
+
+  // ---------------- API HELPERS ----------------
+  async function apiGet(action, params) {
+    let url = BASE_URL + "?action=" + action;
+    if (params) {
+      for (const k in params) url += "&" + k + "=" + encodeURIComponent(params[k]);
+    }
+    const res = await fetch(url);
+    return res.json();
+  }
+
+  async function apiPost(body) {
+    const res = await fetch(BASE_URL, {
+      method: "POST",
+      body: JSON.stringify(body)
+    });
+    return res.json();
+  }
+
+  // ---------------- AUTH ----------------
+  async function doLogin() {
+    const u = document.getElementById('user').value.trim();
+    const p = document.getElementById('pass').value.trim();
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('login-error');
+    errEl.style.display = "none";
+
+    if (!u || !p) { errEl.textContent = "ইউজারনেম ও পাসওয়ার্ড দিন"; errEl.style.display = "block"; return; }
+    if (BASE_URL.indexOf("PASTE_YOUR") === 0) {
+      errEl.textContent = "কোডের ভেতর BASE_URL এখনো বসানো হয়নি";
+      errEl.style.display = "block";
+      return;
+    }
+
+    btn.disabled = true; btn.innerText = "Checking...";
+    try {
+      const res = await apiPost({ action: "login", username: u, password: p });
+      if (res.success) {
+        currentUser = res;
+        document.getElementById('who-name').innerText = res.name;
+        document.getElementById('who-role').innerText = res.role;
+        document.getElementById('who-av').innerText = (res.name || "A").charAt(0).toUpperCase();
+        document.getElementById('welcome-msg').innerText = "Welcome back, " + res.name;
+        document.getElementById('login-screen').style.display = "none";
+        document.getElementById('app-screen').style.display = "block";
+        loadDashboard();
+      } else {
+        errEl.textContent = res.message || "ভুল ইউজারনেম বা পাসওয়ার্ড!";
+        errEl.style.display = "block";
+      }
+    } catch (e) {
+      errEl.textContent = "সার্ভার এরর: " + e.message;
+      errEl.style.display = "block";
+    }
+    btn.disabled = false; btn.innerText = "Login";
+  }
+
+  function logout() { location.reload(); }
+
+  // ---------------- DASHBOARD ----------------
+  function fmtMoney(n) { return "৳" + Number(n || 0).toLocaleString('en-IN'); }
+
+  async function loadDashboard() {
+    try {
+      const data = await apiGet("dashboard");
+      if (data.status !== "success") { alert("ডেটা লোড করা যায়নি: " + (data.message || "")); return; }
+      renderStats(data.stats);
+      renderRevenueChart(data.chart);
+      renderPerformanceChart(data.bookingPerformance);
+      renderRecentBookings(data.recentBookings);
+      renderUpcomingTours(data.upcomingTours);
+      renderActivity(data.recentActivity);
+    } catch (e) {
+      alert("ড্যাশবোর্ড লোড এরর: " + e.message);
+    }
+  }
+
+  function renderStats(s) {
+    const grid = document.getElementById('stats-grid');
+    grid.innerHTML = `
+      <div class="stat-card"><div class="top">Total Revenue<div class="icon">৳</div></div><div class="val">${fmtMoney(s.totalRevenue)}</div></div>
+      <div class="stat-card"><div class="top">Total Bookings<div class="icon">📅</div></div><div class="val">${s.totalBookings}</div></div>
+      <div class="stat-card"><div class="top">Active Tours<div class="icon">🧭</div></div><div class="val">${s.activeTours}</div></div>
+      <div class="stat-card"><div class="top">Pending Bookings<div class="icon">⏳</div></div><div class="val">${s.pendingBookings}</div><div class="sub warn">Requires attention</div></div>
+    `;
+  }
+
+  function renderRevenueChart(chart) {
+    const ctx = document.getElementById('revenueChart');
+    if (revenueChart) revenueChart.destroy();
+    revenueChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chart.labels.length ? chart.labels : ['No data'],
+        datasets: [
+          { label: 'Revenue', data: chart.revenue.length ? chart.revenue : [0], borderColor: '#1f4436', backgroundColor: 'rgba(31,68,54,.08)', fill: true, tension: .4 },
+          { label: 'Bookings', data: chart.bookings.length ? chart.bookings : [0], borderColor: '#ff9f43', backgroundColor: 'rgba(255,159,67,.08)', fill: true, tension: .4 }
+        ]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'top', align: 'end' } }, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  function renderPerformanceChart(perf) {
+    const ctx = document.getElementById('performanceChart');
+    if (performanceChart) performanceChart.destroy();
+    performanceChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Confirmed', 'Pending', 'Cancelled'],
+        datasets: [{
+          data: [perf.confirmed, perf.pending, perf.cancelled],
+          backgroundColor: ['#1a9e5c', '#ff9f43', '#d84c4c'],
+          borderRadius: 6
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  function renderRecentBookings(list) {
+    const body = document.getElementById('recent-bookings-body');
+    const empty = document.getElementById('recent-bookings-empty');
+    if (!list || !list.length) { body.innerHTML = ""; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    body.innerHTML = list.map(b => `
+      <tr>
+        <td>#${b.bookingId}</td>
+        <td>${b.customer}</td>
+        <td>${b.tour}</td>
+        <td>${b.travelDate}</td>
+        <td>${b.travelers}</td>
+        <td>${fmtMoney(b.amount)}</td>
+        <td><span class="badge ${b.status}">${b.status}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function renderUpcomingTours(list) {
+    const wrap = document.getElementById('upcoming-tours-list');
+    const empty = document.getElementById('upcoming-empty');
+    if (!list || !list.length) { wrap.innerHTML = ""; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    wrap.innerHTML = list.map(t => `
+      <div class="tour-item">
+        <div class="dot">🧭</div>
+        <div style="flex:1;">
+          <div class="name">${t.name}</div>
+          <div class="meta">Tour Date: ${t.travelDate || 'TBD'} · ${t.travelers} Travelers</div>
+          <div class="progress-bar"><span style="width:${t.progress}%"></span></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderActivity(list) {
+    const wrap = document.getElementById('activity-list');
+    const empty = document.getElementById('activity-empty');
+    if (!list || !list.length) { wrap.innerHTML = ""; empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    wrap.innerHTML = list.map(a => `
+      <div class="activity-item">
+        <div class="dot"></div>
+        <div style="flex:1;">
+          <div class="action">${a.action}</div>
+          <div class="details">${a.details}</div>
+        </div>
+        <div class="time">${a.time}</div>
+      </div>
+    `).join('');
+  }
+</script>
+</body>
+</html>
