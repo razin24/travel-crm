@@ -235,6 +235,7 @@
   .access-denied{text-align:center;padding:60px 20px;color:var(--muted);}
   .access-denied svg{color:var(--bad);margin-bottom:12px;}
 
+/* ---------- RESPONSIVE / MOBILE FIXES ---------- */
   @media (max-width: 900px){
     .hamburger{display:flex;}
     .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%);transition:transform .2s ease;width:250px;}
@@ -243,10 +244,19 @@
     .grid-2,.bottom-grid{grid-template-columns:1fr;}
     .main{padding:16px 14px 30px;}
     .modal-row2{grid-template-columns:1fr;}
+    
+    /* Topbar Mobile Fix */
+    .topbar { flex-wrap: nowrap; align-items: flex-start; }
+    .topbar-left { flex: 1; min-width: 0; }
+    .topbar h1 { font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topbar p { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topbar-right { flex-shrink: 0; margin-top: 2px; }
   }
   @media (max-width: 480px){
     .stat-card .val{font-size:22px;}
     .tb-profile .name{display:none;}
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar .btn { width: 100%; justify-content: center; }
   }
 </style>
 </head>
@@ -859,15 +869,39 @@
     `).join('');
   }
 
-  function renderNotifDropdown(list) {
+ function renderNotifDropdown(list) {
     const wrap = document.getElementById('notif-list');
     const dot = document.getElementById('notif-dot');
-    if (!list || !list.length) { wrap.innerHTML = '<div style="padding:10px 8px;color:var(--muted);font-size:13px;">কোনো নোটিফিকেশন নেই</div>'; dot.style.display = 'none'; return; }
-    dot.style.display = 'block';
+    
+    if (!list || !list.length) { 
+        wrap.innerHTML = '<div style="padding:10px 8px;color:var(--muted);font-size:13px;">কোনো নোটিফিকেশন নেই</div>'; 
+        dot.style.display = 'none'; 
+        return; 
+    }
+    
     wrap.innerHTML = list.map(a => `<div class="row"><b>${a.action}</b><span>${a.details} · ${a.time}</span></div>`).join('');
+    
+    // লাল ডট ফিক্স: ইউজার আগে নোটিফিকেশন দেখেছে কিনা তা চেক করবে
+    if (!sessionStorage.getItem('notif_seen')) {
+        dot.style.display = 'block'; // না দেখলে লাল ডট জ্বলবে
+    } else {
+        dot.style.display = 'none'; // দেখে ফেললে আর জ্বলবে না
+    }
+  }
+
+  // এই ফাংশনটি আপনার কোডে আগে থেকেই আছে, শুধু এর ভেতরে নিচের ২ লাইন যোগ করে দিন বা পুরোটা রিপ্লেস করে দিন
+  function toggleNotif(e) { 
+    e.stopPropagation(); 
+    document.getElementById('profile-panel').classList.remove('show'); 
+    document.getElementById('notif-panel').classList.toggle('show'); 
+    
+    // ক্লিক করার সাথে সাথেই লাল ডট নিভে যাবে এবং ব্রাউজার মনে রাখবে
+    document.getElementById('notif-dot').style.display = 'none';
+    sessionStorage.setItem('notif_seen', 'true');
   }
 
   // ================= BOOKINGS =================
+  // আপনার বুকিংয়ের বাকি কোড যেমন ছিল তেমনই থাকবে...
   async function loadBookings() {
     try {
       const res = await apiGet('bookings');
@@ -900,7 +934,6 @@
       </tr>
     `).join('');
   }
-
   function fmtDateDisplay(v) { if (!v) return '-'; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
 
 async function openBookingModal(b) {
