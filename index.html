@@ -588,7 +588,7 @@
   // ============================================================
   //  ⚠️ এখানে আপনার Apps Script Web App URL বসান (.../exec)
   // ============================================================
-  const BASE_URL = "https://script.google.com/macros/s/AKfycbyMt2xbrOxPYHb7GgiBqsOneN_NG9lIXHxdjl-L3gwN4XNZxoRg8Q9qaczqetFjhZZ9/exec";
+  const BASE_URL = "https://script.google.com/macros/s/AKfycbw7dY0Ls6BFl6MZUnsOYbvV5hIydO25GX_dhxKu1_gQ0KB4DTkp7w_coQQwuceIIrrq/exec";
 
   let currentUser = {};
   let revenueChart = null, performanceChart = null, financeChart = null;
@@ -959,7 +959,7 @@
     `).join('');
   }
 
-  function openTourModal(t) {
+function openTourModal(t) {
     setModal(t ? 'Edit Tour' : 'Add New Tour', `
       <label>Tour Name</label><input id="m-name" value="${t ? t.Name : ''}">
       <label>Destination</label><input id="m-dest" value="${t ? t.Destination : ''}">
@@ -971,9 +971,20 @@
         <div><label>Duration</label><input id="m-dur" placeholder="e.g. 3 Days 2 Nights" value="${t ? t.Duration : ''}"></div>
         <div><label>Status</label><select id="m-tstatus"><option ${t && t.Status === 'Active' ? 'selected' : ''}>Active</option><option ${t && t.Status === 'Inactive' ? 'selected' : ''}>Inactive</option></select></div>
       </div>
+      <label>Departure Time (যাত্রার সময়)</label><input id="m-deptime" placeholder="যেমন: ২৭শে আগস্ট, রাত ৮:০০" value="${t && t.DepartureTime ? t.DepartureTime : ''}">
       <label>Description</label><textarea id="m-desc">${t ? (t.Description || '') : ''}</textarea>
     `, async () => {
-      const data = { id: t ? t.ID : undefined, name: val('m-name'), destination: val('m-dest'), price: Number(val('m-price')), duration: val('m-dur'), capacity: Number(val('m-cap')), status: val('m-tstatus'), description: val('m-desc') };
+      const data = { 
+        id: t ? t.ID : undefined, 
+        name: val('m-name'), 
+        destination: val('m-dest'), 
+        price: Number(val('m-price')), 
+        duration: val('m-dur'), 
+        capacity: Number(val('m-cap')), 
+        departureTime: val('m-deptime'),
+        status: val('m-tstatus'), 
+        description: val('m-desc') 
+      };
       if (!data.name || !data.destination) return showModalMsg('ট্যুরের নাম ও গন্তব্য আবশ্যক');
       const res = await apiPost({ action: t ? 'updateTour' : 'addTour', data, actor: actorPayload() });
       if (res.success) { showToast(res.message, 'success'); closeModal(); loadTours(); } else showModalMsg(res.message);
