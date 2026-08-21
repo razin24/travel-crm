@@ -888,14 +888,19 @@
   function fmtDateDisplay(v) { if (!v) return '-'; const d = new Date(v); return isNaN(d.getTime()) ? v : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
 
   function openBookingModal(b) {
-    const tourOptions = allTours.map(t => `<option value="${t.Name}" ${b && b.TourName === t.Name ? 'selected' : ''}>${t.Name}</option>`).join('');
+    // ট্যুরের অপশনগুলোতে সময় (data-time) সেট করা হয়েছে
+    const tourOptions = allTours.map(t => `<option value="${t.Name}" data-time="${t.DepartureTime || ''}" ${b && b.TourName === t.Name ? 'selected' : ''}>${t.Name}</option>`).join('');
+    
     setModal(b ? 'Edit Booking' : 'Add Booking', `
       <label>Customer Name</label><input id="m-customer" value="${b ? b.Customer : ''}">
       <label>Phone</label><input id="m-phone" value="${b ? (b.Phone || '') : ''}">
-      <label>Tour</label><select id="m-tour">${tourOptions || '<option value="">কোনো ট্যুর নেই — আগে Manage Tours এ ট্যুর যোগ করুন</option>'}</select>
+      <label>Tour</label>
+      <select id="m-tour" onchange="updateModalTourInfo()">
+          ${tourOptions || '<option value="">কোনো ট্যুর নেই</option>'}
+      </select>
       <div class="modal-row2">
-        <div><label>Travel Date</label><input type="date" id="m-date" value="${b ? toDateInput(b.TravelDate) : ''}"></div>
-        <div><label>Travelers</label><input type="number" min="1" id="m-travelers" value="${b ? b.Travelers : 1}"></div>
+        <div><label>Travel Date & Time</label><input type="text" id="m-date" placeholder="যেমন: August 27 at 8:00 PM" value="${b ? b.TravelDate : ''}"></div>
+        <div><label>Seats (Max 4)</label><input type="text" id="m-travelers" placeholder="যেমন: A1, B2" value="${b ? b.Travelers : ''}"></div>
       </div>
       <div class="modal-row2">
         <div><label>Amount (৳)</label><input type="number" min="0" id="m-amount" value="${b ? b.Amount : ''}"></div>
@@ -909,13 +914,27 @@
       const data = {
         id: b ? b.ID : undefined,
         customer: val('m-customer'), phone: val('m-phone'), tourName: val('m-tour'),
-        travelDate: val('m-date'), travelers: Number(val('m-travelers')), amount: Number(val('m-amount')), status: val('m-status')
+        travelDate: val('m-date'), 
+        travelers: val('m-travelers'), // এখন এটি টেক্সট (সিট নম্বর) হিসেবে সেভ হবে
+        amount: Number(val('m-amount')), status: val('m-status')
       };
-      if (!data.customer || !data.tourName || !data.travelDate) return showModalMsg('কাস্টমার, ট্যুর ও তারিখ আবশ্যক');
+      if (!data.customer || !data.tourName) return showModalMsg('কাস্টমার ও ট্যুর আবশ্যক');
       const res = await apiPost({ action: b ? 'updateBooking' : 'addBooking', data, actor: actorPayload() });
       if (res.success) { showToast(res.message, 'success'); closeModal(); loadBookings(); } else showModalMsg(res.message);
     });
+
+    // নতুন বুকিং অ্যাড করার সময় অটোমেটিক ট্যুরের তারিখ বসে যাবে
+    if (!b) setTimeout(updateModalTourInfo, 100);
   }
+
+  // ট্যুর সিলেক্ট করলে অটোমেটিক ডেট চেঞ্জ করার ফাংশন
+  window.updateModalTourInfo = function() {
+    const sel = document.getElementById('m-tour');
+    if(sel && sel.options[sel.selectedIndex]) {
+       const time = sel.options[sel.selectedIndex].getAttribute('data-time');
+       if (time) document.getElementById('m-date').value = time;
+    }
+  };
 
   async function deleteBookingRow(id) {
     if (!confirm('আপনি কি নিশ্চিত এই বুকিং মুছে ফেলতে চান?')) return;
