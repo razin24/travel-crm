@@ -588,7 +588,7 @@
   // ============================================================
   //  ⚠️ এখানে আপনার Apps Script Web App URL বসান (.../exec)
   // ============================================================
-  const BASE_URL = "https://script.google.com/macros/s/AKfycbyYSuGva5Z0Yca2QjP8VgvD5AIkzvZi8uPux4mI9nD1Jw0tKuA8K-WiGzsVvemVz4eY/exec";
+  const BASE_URL = "https://script.google.com/macros/s/AKfycbztcgui9f7BnJo_0l17ZkA4EN-3xEqeb9MQn2pSA2OYJLrVs7-soqsgJqCTBi9ChqP7/exec";
 
   let currentUser = {};
   let revenueChart = null, performanceChart = null, financeChart = null;
@@ -991,6 +991,7 @@ function openTourModal(t) {
         <div><label>Status</label><select id="m-tstatus"><option ${t && t.Status === 'Active' ? 'selected' : ''}>Active</option><option ${t && t.Status === 'Inactive' ? 'selected' : ''}>Inactive</option></select></div>
       </div>
       <label>Departure Time (যাত্রার সময়)</label><input id="m-deptime" placeholder="যেমন: ২৭শে আগস্ট, রাত ৮:০০" value="${t && t.DepartureTime ? t.DepartureTime : ''}">
+      <label>Boarding Point (বাস ছাড়ার স্থান)</label><input id="m-boarding" placeholder="যেমন: ফকিরাপুল, ঢাকা" value="${t && t.BoardingPoint ? t.BoardingPoint : ''}">
       <label>Description</label><textarea id="m-desc">${t ? (t.Description || '') : ''}</textarea>
     `, async () => {
       const data = { 
@@ -1001,6 +1002,7 @@ function openTourModal(t) {
         duration: val('m-dur'), 
         capacity: Number(val('m-cap')), 
         departureTime: val('m-deptime'),
+        boardingPoint: val('m-boarding'),
         status: val('m-tstatus'), 
         description: val('m-desc') 
       };
@@ -1009,7 +1011,6 @@ function openTourModal(t) {
       if (res.success) { showToast(res.message, 'success'); closeModal(); loadTours(); } else showModalMsg(res.message);
     });
   }
-
   async function deleteTourRow(id) {
     if (!confirm('আপনি কি নিশ্চিত এই ট্যুর মুছে ফেলতে চান?')) return;
     const res = await apiPost({ action: 'deleteTour', id, actor: actorPayload() });
