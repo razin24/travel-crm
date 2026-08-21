@@ -588,7 +588,7 @@
   // ============================================================
   //  ⚠️ এখানে আপনার Apps Script Web App URL বসান (.../exec)
   // ============================================================
-  const BASE_URL = "https://script.google.com/macros/s/AKfycbztcgui9f7BnJo_0l17ZkA4EN-3xEqeb9MQn2pSA2OYJLrVs7-soqsgJqCTBi9ChqP7/exec";
+  const BASE_URL = "https://script.google.com/macros/s/AKfycbxrxfHmmAyu2FVypE3d5JpbUT77pLE-olIBWhNODsk4y_Rps6eivpVqgj8Fke0mhSkv/exec";
 
   let currentUser = {};
   let revenueChart = null, performanceChart = null, financeChart = null;
@@ -1006,19 +1006,15 @@ function openTourModal(t) {
       </div>
       <label>Departure Time (যাত্রার সময়)</label><input id="m-deptime" placeholder="যেমন: ২৭শে আগস্ট, রাত ৮:০০" value="${t && t.DepartureTime ? t.DepartureTime : ''}">
       <label>Boarding Point (বাস ছাড়ার স্থান)</label><input id="m-boarding" placeholder="যেমন: ফকিরাপুল, ঢাকা" value="${t && t.BoardingPoint ? t.BoardingPoint : ''}">
+      <label>Ticket Image Link (ছবির লিংক)</label><input id="m-image" placeholder="https://..." value="${t && t.ImageURL ? t.ImageURL : ''}">
       <label>Description</label><textarea id="m-desc">${t ? (t.Description || '') : ''}</textarea>
     `, async () => {
       const data = { 
         id: t ? t.ID : undefined, 
-        name: val('m-name'), 
-        destination: val('m-dest'), 
-        price: Number(val('m-price')), 
-        duration: val('m-dur'), 
-        capacity: Number(val('m-cap')), 
-        departureTime: val('m-deptime'),
-        boardingPoint: val('m-boarding'),
-        status: val('m-tstatus'), 
-        description: val('m-desc') 
+        name: val('m-name'), destination: val('m-dest'), price: Number(val('m-price')), 
+        duration: val('m-dur'), capacity: Number(val('m-cap')), 
+        departureTime: val('m-deptime'), boardingPoint: val('m-boarding'),
+        image: val('m-image'), status: val('m-tstatus'), description: val('m-desc') 
       };
       if (!data.name || !data.destination) return showModalMsg('ট্যুরের নাম ও গন্তব্য আবশ্যক');
       const res = await apiPost({ action: t ? 'updateTour' : 'addTour', data, actor: actorPayload() });
